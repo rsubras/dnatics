@@ -38,6 +38,14 @@ function App() {
   initializeMsal();
   }, []);
 
+  useEffect(() => {
+    if (token) {
+      document.body.classList.remove('body-unauthenticated');
+    } else {
+      document.body.classList.add('body-unauthenticated');
+    }
+  }, [token]);
+
   const handleSignIn = () => {
 
     PUBLIC_CLIENT_APPLICATION.loginRedirect(LOGIN_REQUEST);
@@ -59,9 +67,10 @@ function App() {
 
   return (
     <div className="App">
-      <h1>
-        dnatics ReactJS apps 
-      </h1>
+      <div className="header-container">
+        <img src="https://img1.wsimg.com/isteam/ip/4388fafb-e7a9-46cb-bc19-fce8e18b2928/dnatics-dark-blue.png/:/rs=w:304,h:76,cg=true,m/cr=w:304,h:76/qt=q:100/ll" className="img-left"/>
+        <h1>ReactJS - AI app demo</h1>
+      </div>
       {
         token ? (
           <Layout>
@@ -73,18 +82,7 @@ function App() {
         )
           : (
             <div>
-              <p
-                style={{
-                  color: 'red',
-                  fontSize: '20px',
-                  fontWeight: 'bold'
-                }}
-              >
-                You are not authenticated!
-              </p>
-              <p>
-                Please click the button below to login.
-              </p>
+
 
               <button
                 onClick={handleSignIn}

@@ -91,6 +91,7 @@ console.log(visuals);
       setNarrative(data.choices[0].text);
     }
   };
+
   return (
     <Box
       sx={{

@@ -5,6 +5,22 @@
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+  float: left; /* Added to align the image to the left */
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+}
+
+.header-container h1 {
+  margin-left: 2in; /* Added to ensure the header text is at least 5 inches apart from the logo */
+}
+
+.img-left {
+  display: block;
+  margin-left: 0;
+  align-content: left;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -48,4 +64,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+
+.body-unauthenticated {
+  background-image: url('https://img1.wsimg.com/isteam/ip/4388fafb-e7a9-46cb-bc19-fce8e18b2928/woman-trader-coach-screen-with-stock-market-d.jpeg/:/rs=w:804,h:500,cg=true,m/cr=w:804,h:500');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh; /* Ensure the background covers the entire viewport height */
+  width: 100vw; /* Ensure the background covers the entire viewport width */
+  margin: 0; /* Remove any default margin */
+  padding: 0; /* Remove any default padding */
+  overflow: hidden; /* Prevent scrolling */
 }
