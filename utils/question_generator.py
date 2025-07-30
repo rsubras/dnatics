@@ -185,23 +185,49 @@ class QuestionGenerator:
             }
             
             if question_type == "Multiple Choice":
-                # Use definitions for MCQ
-                if content_data['definitions']:
-                    definition = random.choice(content_data['definitions'])
-                    # Extract the concept being defined
-                    concept_match = re.search(r'^(.+?)\s+(?:is|are|refers to|means)', definition, re.IGNORECASE)
-                    if concept_match:
-                        concept = concept_match.group(1).strip()
-                        # Extract the definition part
-                        definition_part = definition.replace(concept, '').strip()
-                        definition_part = re.sub(r'^(?:is|are|refers to|means)\s*', '', definition_part, flags=re.IGNORECASE)
-                        
-                        question['question'] = f"What is {concept}?"
+                # Use definitions and facts for MCQ
+                all_content = content_data['definitions'] + content_data['facts']
+                if all_content:
+                    selected_text = random.choice(all_content)
+                    
+                    # Try to extract a clear concept-definition pattern
+                    concept_patterns = [
+                        r'(.+?)\s+(?:is|are)\s+(.+)',
+                        r'(.+?)\s+refers to\s+(.+)',
+                        r'(.+?)\s+means\s+(.+)',
+                    ]
+                    
+                    concept = None
+                    definition_part = None
+                    
+                    for pattern in concept_patterns:
+                        match = re.search(pattern, selected_text, re.IGNORECASE)
+                        if match:
+                            concept = match.group(1).strip()
+                            definition_part = match.group(2).strip()
+                            break
+                    
+                    if concept and definition_part:
+                        question['question'] = f"What {concept.lower()}?"
                         question['correct_answer'] = definition_part
-                        question['options'] = self._generate_mcq_options(definition_part, concept)
-                        question['source_content'] = definition
+                        question['options'] = self._generate_realistic_mcq_options(definition_part, concept, selected_text)
+                        question['source_content'] = selected_text
                     else:
-                        return None
+                        # Fallback: create question from sentence content
+                        words = selected_text.split()
+                        if len(words) > 10:
+                            # Find key scientific terms
+                            key_terms = [w for w in words if len(w) > 6 and w[0].isupper()]
+                            if key_terms:
+                                key_term = random.choice(key_terms).rstrip('.,!?')
+                                question['question'] = f"What is true about {key_term.lower()}?"
+                                question['correct_answer'] = selected_text
+                                question['options'] = self._generate_realistic_mcq_options(selected_text, key_term, selected_text)
+                                question['source_content'] = selected_text
+                            else:
+                                return None
+                        else:
+                            return None
                 else:
                     return None
             
@@ -261,27 +287,71 @@ class QuestionGenerator:
             print(f"Error generating question from content: {str(e)}")
             return None
     
-    def _generate_mcq_options(self, correct_answer, concept):
-        """Generate plausible multiple choice options"""
+    def _generate_realistic_mcq_options(self, correct_answer, concept, source_text):
+        """Generate realistic multiple choice options based on science content"""
         try:
-            # Create variations of the correct answer for distractors
-            options = [correct_answer]  # Correct answer
+            options = []
             
-            # Generate plausible wrong answers
-            base_terms = ["process", "method", "system", "structure", "property", "characteristic"]
+            # Add the correct answer
+            correct_option = correct_answer[:80] + "..." if len(correct_answer) > 80 else correct_answer
+            options.append(correct_option)
             
-            for i in range(3):  # 3 wrong options
-                if i == 0:
-                    # Slightly modify the correct answer
-                    wrong = correct_answer.replace("temporary", "permanent").replace("permanent", "temporary")
-                    wrong = wrong.replace("physical", "chemical").replace("chemical", "physical")
-                    options.append(wrong if wrong != correct_answer else f"A different type of {random.choice(base_terms)}")
-                elif i == 1:
-                    # Create opposite or contrasting answer
-                    options.append(f"The opposite of what {concept.lower()} represents")
+            # Generate plausible science-based wrong answers
+            science_distractors = {
+                'physical': ['chemical changes that alter molecular structure',
+                           'biological processes in living organisms',
+                           'nuclear reactions at atomic level'],
+                'chemical': ['physical changes that alter appearance only',
+                            'mechanical processes involving force',
+                            'thermal expansion of materials'],
+                'weather': ['climate patterns over decades',
+                           'geological formations in earth',
+                           'seasonal variations in daylight'],
+                'climate': ['daily weather conditions',
+                           'atmospheric pressure changes',
+                           'ocean current temperatures'],
+                'motion': ['stationary objects at rest',
+                          'gravitational force only',
+                          'electromagnetic radiation'],
+                'light': ['sound waves in air',
+                         'heat energy from sun',
+                         'magnetic field lines'],
+                'energy': ['matter in different states',
+                          'chemical compounds only',
+                          'biological cell structures'],
+                'time': ['distance measurements',
+                        'temperature readings',
+                        'mass calculations']
+            }
+            
+            # Find relevant distractors based on concept
+            concept_lower = concept.lower()
+            relevant_distractors = []
+            
+            for key, distractors in science_distractors.items():
+                if key in concept_lower or key in source_text.lower():
+                    relevant_distractors.extend(distractors)
+            
+            # If no specific distractors found, use general science terms
+            if not relevant_distractors:
+                relevant_distractors = [
+                    'processes that occur only in laboratory conditions',
+                    'phenomena that happen only in outer space',
+                    'changes that require special equipment to observe'
+                ]
+            
+            # Add 3 wrong options
+            for i in range(3):
+                if i < len(relevant_distractors):
+                    options.append(relevant_distractors[i])
                 else:
-                    # Generic plausible option
-                    options.append(f"A {random.choice(base_terms)} related to {concept.lower()}")
+                    # Fallback generic options
+                    fallbacks = [
+                        'processes that occur only at very high temperatures',
+                        'changes that happen only in living organisms',
+                        'phenomena visible only with microscopes'
+                    ]
+                    options.append(fallbacks[i % len(fallbacks)])
             
             # Shuffle and assign letters
             random.shuffle(options)
@@ -293,12 +363,12 @@ class QuestionGenerator:
             return lettered_options
             
         except Exception as e:
-            print(f"Error generating MCQ options: {str(e)}")
+            print(f"Error generating realistic MCQ options: {str(e)}")
             return [
-                "a) Option A",
-                "b) Option B", 
-                "c) Option C",
-                "d) Option D"
+                "a) Changes that occur in matter without forming new substances",
+                "b) Changes that result in formation of new substances", 
+                "c) Changes that happen only in living organisms",
+                "d) Changes that require high temperature conditions"
             ]
     
     def generate_paper(self, class_level, total_marks, subject, duration=2, question_types=None, selected_chapters=None):
