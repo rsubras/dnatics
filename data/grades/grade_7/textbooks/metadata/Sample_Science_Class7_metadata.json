@@ -1,0 +1,41 @@
+{
+  "content": "Chapter 5: Physical and Chemical Changes\nMatter around us undergoes various changes. These changes can be classified as physical or chemical changes. Physical changes are temporary changes where no new substance is formed. Chemical changes are permanent changes where new substances are formed with different properties. Examples of physical changes include melting of ice, boiling of water, and dissolving sugar in water.\n\nChapter 6: Weather, Climate and Adaptations\nWeather refers to the atmospheric conditions at a particular place and time. Climate is the average weather pattern of a place over a long period of time. Animals and plants have special features that help them live in their environment. These features are called adaptations. Polar regions, tropical rainforests, and deserts have different climatic conditions.\n\nChapter 7: Motion and Time\nMotion is the change in position of an object with time. Objects can move in different ways: straight line motion, circular motion, and oscillatory motion. Speed is the distance covered by an object in unit time. Time is measured using various devices like sundials, pendulum clocks, and digital clocks.\n\nChapter 8: Light\nLight is a form of energy that makes vision possible. Light travels in straight lines and at a very high speed. When light falls on objects, it can be reflected, absorbed, or transmitted. Mirrors and lenses are used to change the direction of light rays.",
+  "chapters": [
+    {
+      "number": 5,
+      "title": "Physical and Chemical Changes",
+      "start_page": 15,
+      "content": "Chapter 5: Physical and Chemical Changes\nMatter around us undergoes various changes. These changes can be classified as physical or chemical changes. Physical changes are temporary changes where no new substance is formed. Chemical changes are permanent changes where new substances are formed with different properties. Examples of physical changes include melting of ice, boiling of water, and dissolving sugar in water."
+    },
+    {
+      "number": 6,
+      "title": "Weather, Climate and Adaptations",
+      "start_page": 16,
+      "content": "Chapter 6: Weather, Climate and Adaptations\nWeather refers to the atmospheric conditions at a particular place and time. Climate is the average weather pattern of a place over a long period of time. Animals and plants have special features that help them live in their environment. These features are called adaptations. Polar regions, tropical rainforests, and deserts have different climatic conditions."
+    },
+    {
+      "number": 7,
+      "title": "Motion and Time",
+      "start_page": 17,
+      "content": "Chapter 7: Motion and Time\nMotion is the change in position of an object with time. Objects can move in different ways: straight line motion, circular motion, and oscillatory motion. Speed is the distance covered by an object in unit time. Time is measured using various devices like sundials, pendulum clocks, and digital clocks."
+    },
+    {
+      "number": 8,
+      "title": "Light",
+      "start_page": 18,
+      "content": "Chapter 8: Light\nLight is a form of energy that makes vision possible. Light travels in straight lines and at a very high speed. When light falls on objects, it can be reflected, absorbed, or transmitted. Mirrors and lenses are used to change the direction of light rays."
+    }
+  ],
+  "metadata": {
+    "total_pages": 18,
+    "content_start_page": 15,
+    "document_type": "text",
+    "extracted_with_ocr": false,
+    "detected_class": "Class 7",
+    "detected_subject": "Science"
+  },
+  "source_file": "Sample_Science_Class7.pdf",
+  "extraction_date": "2025-07-30T17:15:00.000Z",
+  "detected_class": "Class 7",
+  "detected_subject": "Science"
+}
