@@ -110,103 +110,192 @@ class QuestionGenerator:
             print(f"Error getting available subjects and chapters: {str(e)}")
             return {}
     
-    def extract_key_topics(self, text_content):
+    def extract_facts_and_concepts(self, text_content):
         """
-        Extract key topics from textbook content
+        Extract actual facts, definitions, and concepts from textbook content
         
         Args:
             text_content (str): Text content from textbook
             
         Returns:
-            list: List of key topics/concepts
+            dict: Dictionary containing facts, definitions, and concepts
         """
         try:
-            # Common educational keywords that indicate important topics
-            important_indicators = [
-                'definition', 'concept', 'theory', 'principle', 'law', 'rule',
-                'process', 'method', 'technique', 'function', 'property',
-                'characteristic', 'feature', 'example', 'application'
-            ]
-            
-            # Split into sentences and find those with important indicators
             sentences = re.split(r'[.!?]+', text_content)
-            topics = []
+            
+            facts = []
+            definitions = []
+            processes = []
+            examples = []
             
             for sentence in sentences:
                 sentence = sentence.strip()
-                if len(sentence) < 20:  # Skip very short sentences
+                if len(sentence) < 15:
                     continue
                 
-                # Look for sentences that define or explain concepts
-                if any(indicator in sentence.lower() for indicator in important_indicators):
-                    # Extract key terms (nouns that might be topics)
-                    words = re.findall(r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b', sentence)
-                    for word in words:
-                        if len(word) > 3 and word not in topics:
-                            topics.append(word)
+                # Extract definitions (sentences with "is", "are", "refers to", "means")
+                if any(pattern in sentence.lower() for pattern in [' is ', ' are ', ' refers to ', ' means ', ' defined as ']):
+                    definitions.append(sentence)
                 
-                # Also extract capitalized terms that appear frequently
-                important_words = [word.strip('.,!?;:()[]{}') for word in sentence.split() 
-                                 if word[0].isupper() and len(word.strip('.,!?;:()[]{}')) > 3]
+                # Extract processes (sentences with process indicators)
+                elif any(pattern in sentence.lower() for pattern in ['process', 'steps', 'procedure', 'method']):
+                    processes.append(sentence)
                 
-                # Add unique important words to topics
-                for word in important_words:
-                    if word not in topics and len(word) > 3:
-                        topics.append(word)
+                # Extract examples
+                elif any(pattern in sentence.lower() for pattern in ['example', 'for instance', 'such as', 'like']):
+                    examples.append(sentence)
+                
+                # General facts (other informative sentences)
+                elif len(sentence) > 30 and not sentence.startswith('Chapter'):
+                    facts.append(sentence)
             
-            # Return top 20 topics
-            return topics[:20] if len(topics) >= 20 else topics
+            return {
+                'definitions': definitions[:10],
+                'processes': processes[:5],
+                'examples': examples[:8],
+                'facts': facts[:15]
+            }
             
         except Exception as e:
-            print(f"Error extracting topics: {str(e)}")
-            return ["Mathematics", "Science", "History", "Geography", "Literature"]
+            print(f"Error extracting facts and concepts: {str(e)}")
+            return {'definitions': [], 'processes': [], 'examples': [], 'facts': []}
     
-    def generate_question(self, question_type, topic, marks):
+    def generate_question_from_content(self, question_type, content_data, marks):
         """
-        Generate a single question based on type and topic
+        Generate a question based on actual textbook content
         
         Args:
-            question_type (str): Type of question (Multiple Choice, Short Answer, etc.)
-            topic (str): Topic for the question
+            question_type (str): Type of question
+            content_data (dict): Extracted facts, definitions, processes, examples
             marks (int): Marks for the question
             
         Returns:
-            dict: Generated question with details
+            dict: Generated question with actual content
         """
         try:
-            templates = self.question_templates.get(question_type, [])
-            if not templates:
-                return None
-            
-            template = random.choice(templates)
-            
-            # Handle template formatting more safely
-            if '{}' in template:
-                formatted_question = template.format(topic)
-            else:
-                formatted_question = f"{template} {topic}"
-            
             question = {
                 'type': question_type,
                 'marks': marks,
-                'topic': topic,
-                'question': formatted_question
+                'question': '',
+                'source_content': ''
             }
             
-            # Add multiple choice options if needed
             if question_type == "Multiple Choice":
-                question['options'] = [
-                    f"Option A related to {topic}",
-                    f"Option B related to {topic}",
-                    f"Option C related to {topic}",
-                    f"Option D related to {topic}"
-                ]
+                # Use definitions for MCQ
+                if content_data['definitions']:
+                    definition = random.choice(content_data['definitions'])
+                    # Extract the concept being defined
+                    concept_match = re.search(r'^(.+?)\s+(?:is|are|refers to|means)', definition, re.IGNORECASE)
+                    if concept_match:
+                        concept = concept_match.group(1).strip()
+                        # Extract the definition part
+                        definition_part = definition.replace(concept, '').strip()
+                        definition_part = re.sub(r'^(?:is|are|refers to|means)\s*', '', definition_part, flags=re.IGNORECASE)
+                        
+                        question['question'] = f"What is {concept}?"
+                        question['correct_answer'] = definition_part
+                        question['options'] = self._generate_mcq_options(definition_part, concept)
+                        question['source_content'] = definition
+                    else:
+                        return None
+                else:
+                    return None
             
-            return question
+            elif question_type == "Short Answer":
+                # Use processes or facts
+                if content_data['processes']:
+                    process = random.choice(content_data['processes'])
+                    question['question'] = f"Explain the process mentioned in: '{process[:50]}...'"
+                    question['source_content'] = process
+                elif content_data['facts']:
+                    fact = random.choice(content_data['facts'])
+                    # Create question from fact
+                    question['question'] = f"Explain: {fact[:60]}..."
+                    question['source_content'] = fact
+                else:
+                    return None
+            
+            elif question_type == "Long Answer":
+                # Use comprehensive content
+                if content_data['definitions'] and content_data['facts']:
+                    definition = random.choice(content_data['definitions'])
+                    concept_match = re.search(r'^(.+?)\s+(?:is|are|refers to|means)', definition, re.IGNORECASE)
+                    if concept_match:
+                        concept = concept_match.group(1).strip()
+                        question['question'] = f"Write a detailed note on {concept}. Include its definition, characteristics, and examples."
+                        question['source_content'] = definition
+                    else:
+                        return None
+                else:
+                    return None
+            
+            elif question_type == "Fill in the Blanks":
+                # Create fill-in-the-blank from facts
+                if content_data['facts']:
+                    fact = random.choice(content_data['facts'])
+                    # Find key terms to blank out
+                    words = fact.split()
+                    if len(words) > 10:
+                        # Blank out important words (nouns, adjectives)
+                        important_words = [w for w in words if len(w) > 4 and w[0].isupper()]
+                        if important_words:
+                            word_to_blank = random.choice(important_words)
+                            blanked_sentence = fact.replace(word_to_blank, '_______', 1)
+                            question['question'] = blanked_sentence
+                            question['answer'] = word_to_blank
+                            question['source_content'] = fact
+                        else:
+                            return None
+                    else:
+                        return None
+                else:
+                    return None
+            
+            return question if question['question'] else None
             
         except Exception as e:
-            print(f"Error generating question: {str(e)}")
+            print(f"Error generating question from content: {str(e)}")
             return None
+    
+    def _generate_mcq_options(self, correct_answer, concept):
+        """Generate plausible multiple choice options"""
+        try:
+            # Create variations of the correct answer for distractors
+            options = [correct_answer]  # Correct answer
+            
+            # Generate plausible wrong answers
+            base_terms = ["process", "method", "system", "structure", "property", "characteristic"]
+            
+            for i in range(3):  # 3 wrong options
+                if i == 0:
+                    # Slightly modify the correct answer
+                    wrong = correct_answer.replace("temporary", "permanent").replace("permanent", "temporary")
+                    wrong = wrong.replace("physical", "chemical").replace("chemical", "physical")
+                    options.append(wrong if wrong != correct_answer else f"A different type of {random.choice(base_terms)}")
+                elif i == 1:
+                    # Create opposite or contrasting answer
+                    options.append(f"The opposite of what {concept.lower()} represents")
+                else:
+                    # Generic plausible option
+                    options.append(f"A {random.choice(base_terms)} related to {concept.lower()}")
+            
+            # Shuffle and assign letters
+            random.shuffle(options)
+            lettered_options = []
+            for idx, option in enumerate(options):
+                letter = chr(ord('a') + idx)
+                lettered_options.append(f"{letter}) {option}")
+            
+            return lettered_options
+            
+        except Exception as e:
+            print(f"Error generating MCQ options: {str(e)}")
+            return [
+                "a) Option A",
+                "b) Option B", 
+                "c) Option C",
+                "d) Option D"
+            ]
     
     def generate_paper(self, class_level, total_marks, subject, duration=2, question_types=None, selected_chapters=None):
         """
@@ -253,31 +342,34 @@ class QuestionGenerator:
                 print("No chapters available for question generation")
                 return None
             
-            # Extract content and topics from selected chapters
+            # Extract content and analyze from selected chapters
             combined_content = ""
-            chapter_topics = []
             
             for chapter in chapters_to_use:
                 chapter_content = chapter.get('content', '')
                 combined_content += chapter_content + "\n"
-                
-                # Add chapter title as primary topic
-                chapter_title = chapter.get('title', '')
-                if chapter_title:
-                    chapter_topics.append(chapter_title)
             
-            # Extract additional topics from content
+            # Extract actual facts, definitions, and concepts from textbook content
             if combined_content.strip():
-                content_topics = self.extract_key_topics(combined_content)
-                # Combine chapter titles with content topics
-                topics = chapter_topics + [t for t in content_topics if t not in chapter_topics]
+                content_data = self.extract_facts_and_concepts(combined_content)
             else:
-                topics = self._get_default_topics(subject)
+                print("No textbook content found for question generation")
+                return None
+            
+            # Check if we have enough content for question generation
+            total_content_items = (len(content_data['definitions']) + 
+                                 len(content_data['facts']) + 
+                                 len(content_data['processes']) + 
+                                 len(content_data['examples']))
+            
+            if total_content_items < 5:
+                print("Insufficient textbook content for quality question generation")
+                return None
             
             # Distribute marks among question types
             mark_distribution = self._distribute_marks(total_marks, question_types)
             
-            # Generate questions
+            # Generate questions using actual textbook content
             questions = []
             question_number = 1
             
@@ -287,13 +379,11 @@ class QuestionGenerator:
                     marks_per_question = allocated_marks // questions_for_type
                     
                     for _ in range(questions_for_type):
-                        if topics:
-                            topic = random.choice(topics)
-                            question = self.generate_question(question_type, topic, marks_per_question)
-                            if question:
-                                question['number'] = question_number
-                                questions.append(question)
-                                question_number += 1
+                        question = self.generate_question_from_content(question_type, content_data, marks_per_question)
+                        if question:
+                            question['number'] = question_number
+                            questions.append(question)
+                            question_number += 1
             
             # Format the question paper with actual class info
             paper_content = self._format_question_paper(
@@ -363,8 +453,12 @@ INSTRUCTIONS:
                     paper += f"Q{question['number']}. {question['question']} ({question['marks']} marks)\n"
                     
                     if question_type == "Multiple Choice" and 'options' in question:
-                        for i, option in enumerate(question['options'], 1):
-                            paper += f"    {chr(96+i)}) {option}\n"
+                        for option in question['options']:
+                            paper += f"    {option}\n"
+                    
+                    if question_type == "Fill in the Blanks" and 'answer' in question:
+                        # For internal reference, don't show answer in question paper
+                        pass
                     
                     paper += "\n"
                 
