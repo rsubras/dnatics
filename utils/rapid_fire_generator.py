@@ -53,10 +53,19 @@ class RapidFireGenerator:
         for i in range(num_questions):
             operation = random.choice(operation_types)
             question_data = self.math_operations[operation]()
-            question_data['question_number'] = i + 1
-            question_data['subject'] = 'Mathematics'
-            question_data['category'] = operation
-            questions.append(question_data)
+            if question_data:  # Check if question was generated successfully
+                question_data['question_number'] = i + 1
+                question_data['subject'] = 'Mathematics'
+                question_data['category'] = operation
+                questions.append(question_data)
+            else:
+                # Fallback to basic arithmetic if specific operation fails
+                question_data = self._generate_basic_arithmetic()
+                if question_data:
+                    question_data['question_number'] = i + 1
+                    question_data['subject'] = 'Mathematics'
+                    question_data['category'] = 'basic_arithmetic'
+                    questions.append(question_data)
         
         return questions
     
@@ -68,10 +77,19 @@ class RapidFireGenerator:
         for i in range(num_questions):
             grammar_type = random.choice(grammar_types)
             question_data = self.english_grammar[grammar_type]()
-            question_data['question_number'] = i + 1
-            question_data['subject'] = 'English'
-            question_data['category'] = grammar_type
-            questions.append(question_data)
+            if question_data:  # Check if question was generated successfully
+                question_data['question_number'] = i + 1
+                question_data['subject'] = 'English'
+                question_data['category'] = grammar_type
+                questions.append(question_data)
+            else:
+                # Fallback to parts of speech if specific type fails
+                question_data = self._generate_parts_of_speech()
+                if question_data:
+                    question_data['question_number'] = i + 1
+                    question_data['subject'] = 'English'
+                    question_data['category'] = 'parts_of_speech'
+                    questions.append(question_data)
         
         return questions
     
@@ -83,10 +101,19 @@ class RapidFireGenerator:
         for i in range(num_questions):
             science_type = random.choice(science_types)
             question_data = self.science_basics[science_type]()
-            question_data['question_number'] = i + 1
-            question_data['subject'] = 'Science'
-            question_data['category'] = science_type
-            questions.append(question_data)
+            if question_data:  # Check if question was generated successfully
+                question_data['question_number'] = i + 1
+                question_data['subject'] = 'Science'
+                question_data['category'] = science_type
+                questions.append(question_data)
+            else:
+                # Fallback to general science if specific type fails
+                question_data = self._generate_general_science()
+                if question_data:
+                    question_data['question_number'] = i + 1
+                    question_data['subject'] = 'Science'
+                    question_data['category'] = 'general_science'
+                    questions.append(question_data)
         
         return questions
     
@@ -471,3 +498,72 @@ class RapidFireGenerator:
         except Exception as e:
             print(f"Error saving rapid fire result: {str(e)}")
             return None
+    
+    def _generate_basic_arithmetic(self):
+        """Fallback method for basic arithmetic"""
+        num1 = random.randint(1, 50)
+        num2 = random.randint(1, 50)
+        operation = random.choice(['+', '-', '×'])
+        
+        if operation == '+':
+            answer = num1 + num2
+            question = f"Calculate: {num1} + {num2}"
+        elif operation == '-':
+            answer = num1 - num2 if num1 >= num2 else num2 - num1
+            question = f"Calculate: {max(num1, num2)} - {min(num1, num2)}"
+        else:  # multiplication
+            num1 = random.randint(1, 12)
+            num2 = random.randint(1, 12)
+            answer = num1 * num2
+            question = f"Calculate: {num1} × {num2}"
+        
+        return {
+            'question': question,
+            'correct_answer': str(answer),
+            'answer_value': answer,
+            'type': 'Short Answer'
+        }
+    
+    def _generate_parts_of_speech(self):
+        """Fallback method for parts of speech"""
+        words_pos = [
+            ("run", "Verb"), ("beautiful", "Adjective"), ("quickly", "Adverb"),
+            ("dog", "Noun"), ("and", "Conjunction"), ("in", "Preposition"),
+            ("happy", "Adjective"), ("sing", "Verb"), ("table", "Noun"),
+            ("very", "Adverb"), ("blue", "Adjective"), ("jump", "Verb")
+        ]
+        
+        word, correct_pos = random.choice(words_pos)
+        
+        # Create wrong options
+        all_pos = ["Noun", "Verb", "Adjective", "Adverb", "Preposition", "Conjunction"]
+        wrong_options = [pos for pos in all_pos if pos != correct_pos]
+        options = [correct_pos] + random.sample(wrong_options, 3)
+        random.shuffle(options)
+        
+        return {
+            'question': f'What part of speech is the word "{word}"?',
+            'options': [f"{chr(65+i)}) {opt}" for i, opt in enumerate(options)],
+            'correct_answer': chr(65 + options.index(correct_pos)),
+            'type': 'MCQ'
+        }
+    
+    def _generate_general_science(self):
+        """Fallback method for general science"""
+        science_facts = [
+            ("Water boils at what temperature?", "100°C", ["50°C", "100°C", "150°C", "200°C"]),
+            ("How many legs does a spider have?", "8", ["6", "8", "10", "12"]),
+            ("What gas do plants release during photosynthesis?", "Oxygen", ["Carbon dioxide", "Oxygen", "Nitrogen", "Hydrogen"]),
+            ("The Earth has how many moons?", "1", ["0", "1", "2", "3"]),
+            ("What is the hardest natural substance?", "Diamond", ["Gold", "Iron", "Diamond", "Silver"])
+        ]
+        
+        question, correct, all_options = random.choice(science_facts)
+        random.shuffle(all_options)
+        
+        return {
+            'question': question,
+            'options': [f"{chr(65+i)}) {opt}" for i, opt in enumerate(all_options)],
+            'correct_answer': chr(65 + all_options.index(correct)),
+            'type': 'MCQ'
+        }
