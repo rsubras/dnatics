@@ -19,9 +19,8 @@ class PDFProcessor:
         """Extract chapter information from Contents page (pages 1-14)"""
         contents_chapters = []
         contents_patterns = [
+            r'Chapter\s+(\d+)\s+(.+?)\s+(\d+)$',      # Chapter  X Title PageNum
             r'Chapter\s+(\d+)[\s\.:]*(.+?)\s+(\d+)',  # Chapter X Title PageNum
-            r'(\d+)[\.\s]+(.+?)\s+(\d+)',             # X. Title PageNum  
-            r'Unit\s+(\d+)[\s\.:]*(.+?)\s+(\d+)',     # Unit X Title PageNum
         ]
         
         try:
@@ -41,27 +40,53 @@ class PDFProcessor:
                     print(f"Found Contents page at page {page_num + 1}")
                     lines = page_text.split('\n')
                     
+                    chapter_lines = []
                     for line in lines:
                         line = line.strip()
-                        if len(line) < 5:
-                            continue
-                            
-                        for pattern in contents_patterns:
-                            match = re.search(pattern, line, re.IGNORECASE)
-                            if match:
-                                if len(match.groups()) == 3:
-                                    chapter_num = match.group(1)
-                                    title = match.group(2).strip()
-                                    page_num_str = match.group(3)
-                                    
-                                    if chapter_num.isdigit() and page_num_str.isdigit():
-                                        contents_chapters.append({
-                                            'number': int(chapter_num),
-                                            'title': title,
-                                            'start_page': int(page_num_str)
-                                        })
-                                        print(f"Found Chapter {chapter_num}: {title} (Page {page_num_str})")
+                        if 'Chapter' in line and len(line) > 5:
+                            chapter_lines.append(line)
+                    
+                    # Process chapter lines
+                    for line in chapter_lines:
+                        # Handle multi-line chapter entries
+                        if 'Chapter' in line:
+                            parts = line.split()
+                            if len(parts) >= 3:
+                                # Find chapter number
+                                chapter_num = None
+                                for part in parts:
+                                    if part.isdigit() and 1 <= int(part) <= 20:
+                                        chapter_num = int(part)
                                         break
+                                
+                                # Find page number (last digit)
+                                page_num = None
+                                for part in reversed(parts):
+                                    if part.isdigit() and int(part) > 20:  # Page numbers are > 20
+                                        page_num = int(part)
+                                        break
+                                
+                                if chapter_num and page_num:
+                                    # Extract title (everything between chapter number and page number)
+                                    title_parts = []
+                                    start_collecting = False
+                                    for part in parts:
+                                        if part == str(chapter_num):
+                                            start_collecting = True
+                                            continue
+                                        if part == str(page_num):
+                                            break
+                                        if start_collecting:
+                                            title_parts.append(part)
+                                    
+                                    title = ' '.join(title_parts).strip()
+                                    if title:
+                                        contents_chapters.append({
+                                            'number': chapter_num,
+                                            'title': title,
+                                            'start_page': page_num
+                                        })
+                                        print(f"Found Chapter {chapter_num}: {title} (Page {page_num})")
         except Exception as e:
             print(f"Error extracting contents: {str(e)}")
             
