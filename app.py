@@ -1,6 +1,9 @@
 import streamlit as st
 import os
+import json
+import time
 from pathlib import Path
+from datetime import datetime, timedelta
 
 # Create necessary directories
 def setup_directories():
@@ -92,7 +95,7 @@ def show_teacher_interface():
 def show_student_interface():
     st.header("👨‍🎓 Student Dashboard")
     
-    tabs = st.tabs(["📥 Download Question Papers", "📤 Submit Answer Sheet", "📋 View Results"])
+    tabs = st.tabs(["📥 Download Question Papers", "📤 Submit Answer Sheet", "⚡ Rapid Fire Quiz", "📋 View Results"])
     
     with tabs[0]:
         show_question_download()
@@ -101,6 +104,9 @@ def show_student_interface():
         show_answer_submission()
         
     with tabs[2]:
+        show_rapid_fire_quiz()
+        
+    with tabs[3]:
         show_results()
 
 def show_upload_interface():
@@ -396,11 +402,297 @@ def show_answer_submission():
                 st.success("✅ Answer sheet submitted for evaluation!")
                 st.info("📊 Results will be available in the 'View Results' tab")
 
+def show_rapid_fire_quiz():
+    st.subheader("⚡ Rapid Fire Quiz")
+    
+    # Initialize session state for rapid fire
+    if 'rf_questions' not in st.session_state:
+        st.session_state.rf_questions = []
+    if 'rf_current_question' not in st.session_state:
+        st.session_state.rf_current_question = 0
+    if 'rf_user_answers' not in st.session_state:
+        st.session_state.rf_user_answers = {}
+    if 'rf_test_started' not in st.session_state:
+        st.session_state.rf_test_started = False
+    if 'rf_test_completed' not in st.session_state:
+        st.session_state.rf_test_completed = False
+    if 'rf_start_time' not in st.session_state:
+        st.session_state.rf_start_time = None
+    if 'rf_timer_duration' not in st.session_state:
+        st.session_state.rf_timer_duration = 0
+    
+    # Quiz setup section
+    if not st.session_state.rf_test_started:
+        st.markdown("### Configure Your Rapid Fire Quiz")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            subject = st.selectbox(
+                "Select Subject",
+                ["Mathematics", "English", "Science"],
+                key="rf_subject"
+            )
+        
+        with col2:
+            num_questions = st.selectbox(
+                "Number of Questions",
+                [25, 50, 75, 100],
+                key="rf_num_questions"
+            )
+        
+        # Show timer information
+        timer_info = {
+            25: "5 minutes",
+            50: "10 minutes", 
+            75: "15 minutes",
+            100: "20 minutes"
+        }
+        
+        st.info(f"⏱️ **Timer**: {timer_info[num_questions]} for {num_questions} questions")
+        
+        # Subject-specific information
+        subject_info = {
+            "Mathematics": "• Multiplication tables\n• Two-digit calculations\n• Fractions\n• Basic arithmetic",
+            "English": "• Parts of speech\n• Verb forms\n• Sentence correction\n• Synonyms & antonyms",
+            "Science": "• General science facts\n• Biology basics\n• Physics concepts\n• Chemistry fundamentals"
+        }
+        
+        st.markdown(f"**Topics covered:**\n{subject_info[subject]}")
+        
+        # Student name input
+        student_name = st.text_input("Enter Your Name", key="rf_student_name")
+        
+        if st.button("🚀 Start Rapid Fire Quiz", type="primary") and student_name:
+            from utils.rapid_fire_generator import RapidFireGenerator
+            
+            generator = RapidFireGenerator()
+            
+            with st.spinner("Generating quiz questions..."):
+                questions = generator.generate_rapid_fire_questions(subject, num_questions)
+                
+                if questions:
+                    st.session_state.rf_questions = questions
+                    st.session_state.rf_current_question = 0
+                    st.session_state.rf_user_answers = {}
+                    st.session_state.rf_test_started = True
+                    st.session_state.rf_test_completed = False
+                    st.session_state.rf_start_time = time.time()
+                    st.session_state.rf_timer_duration = generator.get_timer_duration(num_questions)
+                    st.session_state.rf_subject = subject
+                    st.session_state.rf_student_name = student_name
+                    st.rerun()
+                else:
+                    st.error("Failed to generate quiz questions. Please try again.")
+        
+        elif not student_name and st.button("🚀 Start Rapid Fire Quiz", type="primary"):
+            st.warning("Please enter your name to start the quiz.")
+    
+    # Quiz in progress
+    elif st.session_state.rf_test_started and not st.session_state.rf_test_completed:
+        # Check if time is up
+        elapsed_time = time.time() - st.session_state.rf_start_time
+        remaining_time = st.session_state.rf_timer_duration - elapsed_time
+        
+        if remaining_time <= 0:
+            # Time up - auto submit
+            st.session_state.rf_test_completed = True
+            st.rerun()
+        
+        # Timer display
+        minutes = int(remaining_time // 60)
+        seconds = int(remaining_time % 60)
+        
+        # Create timer with color coding
+        if remaining_time < 60:  # Last minute - red
+            timer_color = "🔴"
+        elif remaining_time < 300:  # Last 5 minutes - yellow
+            timer_color = "🟡"
+        else:
+            timer_color = "🟢"
+        
+        st.markdown(f"### {timer_color} Time Remaining: {minutes:02d}:{seconds:02d}")
+        
+        # Progress bar
+        progress = st.session_state.rf_current_question / len(st.session_state.rf_questions)
+        st.progress(progress)
+        st.markdown(f"**Question {st.session_state.rf_current_question + 1} of {len(st.session_state.rf_questions)}**")
+        
+        # Current question
+        current_q = st.session_state.rf_questions[st.session_state.rf_current_question]
+        
+        st.markdown(f"### {current_q['question']}")
+        
+        if current_q['type'] == 'MCQ':
+            # Multiple choice
+            answer = st.radio(
+                "Select your answer:",
+                options=[opt.split(') ', 1)[1] for opt in current_q['options']],
+                key=f"rf_q_{st.session_state.rf_current_question}"
+            )
+            
+            # Convert back to letter format
+            if answer:
+                for opt in current_q['options']:
+                    if opt.split(') ', 1)[1] == answer:
+                        selected_letter = opt.split(') ', 1)[0]
+                        break
+        else:
+            # Short answer
+            answer = st.text_input(
+                "Your answer:",
+                key=f"rf_q_{st.session_state.rf_current_question}"
+            )
+            selected_letter = answer
+        
+        # Navigation buttons
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            if st.session_state.rf_current_question > 0:
+                if st.button("⬅️ Previous"):
+                    st.session_state.rf_current_question -= 1
+                    st.rerun()
+        
+        with col2:
+            if st.button("⏭️ Skip"):
+                if st.session_state.rf_current_question < len(st.session_state.rf_questions) - 1:
+                    st.session_state.rf_current_question += 1
+                    st.rerun()
+        
+        with col3:
+            if answer:
+                if st.session_state.rf_current_question < len(st.session_state.rf_questions) - 1:
+                    if st.button("➡️ Next", type="primary"):
+                        st.session_state.rf_user_answers[f'q_{st.session_state.rf_current_question}'] = selected_letter
+                        st.session_state.rf_current_question += 1
+                        st.rerun()
+                else:
+                    if st.button("✅ Submit Quiz", type="primary"):
+                        st.session_state.rf_user_answers[f'q_{st.session_state.rf_current_question}'] = selected_letter
+                        st.session_state.rf_test_completed = True
+                        st.rerun()
+        
+        # Auto-refresh for timer
+        time.sleep(1)
+        st.rerun()
+    
+    # Quiz completed - show results
+    elif st.session_state.rf_test_completed:
+        st.markdown("### 🎉 Quiz Completed!")
+        
+        from utils.rapid_fire_generator import RapidFireGenerator
+        generator = RapidFireGenerator()
+        
+        # Calculate score
+        score_data = generator.calculate_score(
+            st.session_state.rf_user_answers,
+            st.session_state.rf_questions
+        )
+        
+        # Display results
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Total Questions", score_data['total_questions'])
+        
+        with col2:
+            st.metric("Correct Answers", score_data['correct_answers'])
+        
+        with col3:
+            st.metric("Percentage", f"{score_data['percentage']}%")
+        
+        # Grade display with color
+        grade_colors = {
+            'A+': '🟢', 'A': '🟢', 'B+': '🟡', 'B': '🟡', 'C': '🟠', 'F': '🔴'
+        }
+        
+        st.markdown(f"## {grade_colors.get(score_data['grade'], '⚪')} Grade: {score_data['grade']}")
+        
+        # Save result
+        result_data = {
+            **score_data,
+            'subject': st.session_state.rf_subject,
+            'student_name': st.session_state.rf_student_name,
+            'questions': st.session_state.rf_questions,
+            'user_answers': st.session_state.rf_user_answers
+        }
+        
+        filepath = generator.save_rapid_fire_result(
+            st.session_state.rf_student_name,
+            st.session_state.rf_subject,
+            result_data
+        )
+        
+        if filepath:
+            st.success("📊 Results saved to your report history!")
+        
+        # Reset button
+        if st.button("🔄 Take Another Quiz"):
+            # Reset all session state
+            for key in list(st.session_state.keys()):
+                if key.startswith('rf_'):
+                    del st.session_state[key]
+            st.rerun()
+
 def show_results():
     st.subheader("📋 View Results")
     
+    # Regular question paper results
+    st.markdown("### 📄 Question Paper Results")
     st.info("📊 **Evaluation Results**\n"
            "Your answer sheet evaluations will appear here once processing is complete.")
+    
+    # Rapid Fire results
+    st.markdown("### ⚡ Rapid Fire Quiz History")
+    
+    # Check for rapid fire results
+    rf_reports_dir = "data/reports/rapid_fire"
+    if os.path.exists(rf_reports_dir):
+        rf_files = [f for f in os.listdir(rf_reports_dir) if f.endswith('.json')]
+        
+        if rf_files:
+            # Sort by timestamp (newest first)
+            rf_files.sort(reverse=True)
+            
+            for rf_file in rf_files[:10]:  # Show last 10 results
+                try:
+                    with open(os.path.join(rf_reports_dir, rf_file), 'r') as f:
+                        result = json.load(f)
+                    
+                    # Parse filename for display
+                    parts = rf_file.replace('.json', '').split('_')
+                    if len(parts) >= 4:
+                        student = parts[0]
+                        subject = parts[1]
+                        timestamp = parts[3]
+                        
+                        # Format timestamp
+                        try:
+                            dt = datetime.strptime(timestamp, "%Y%m%d_%H%M%S")
+                            date_str = dt.strftime("%Y-%m-%d %H:%M")
+                        except:
+                            date_str = timestamp
+                        
+                        # Display result card
+                        with st.expander(f"🎯 {subject} Quiz - {date_str} - Grade: {result.get('grade', 'N/A')}"):
+                            col1, col2, col3, col4 = st.columns(4)
+                            
+                            with col1:
+                                st.metric("Questions", result.get('total_questions', 0))
+                            with col2:
+                                st.metric("Correct", result.get('correct_answers', 0))
+                            with col3:
+                                st.metric("Score", f"{result.get('percentage', 0)}%")
+                            with col4:
+                                st.metric("Grade", result.get('grade', 'N/A'))
+                
+                except Exception as e:
+                    continue
+        else:
+            st.info("No rapid fire quiz results found. Take a quiz to see your history!")
+    else:
+        st.info("No rapid fire quiz results found. Take a quiz to see your history!")
 
 if __name__ == "__main__":
     main()
