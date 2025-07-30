@@ -15,6 +15,58 @@ class PDFProcessor:
             r'^Lesson\s+(\d+)[\s\.:]*(.+?)$',
         ]
     
+    def _extract_contents_page(self, doc):
+        """Extract chapter information from Contents page (pages 1-14)"""
+        contents_chapters = []
+        contents_patterns = [
+            r'Chapter\s+(\d+)[\s\.:]*(.+?)\s+(\d+)',  # Chapter X Title PageNum
+            r'(\d+)[\.\s]+(.+?)\s+(\d+)',             # X. Title PageNum  
+            r'Unit\s+(\d+)[\s\.:]*(.+?)\s+(\d+)',     # Unit X Title PageNum
+        ]
+        
+        try:
+            # Check pages 1-14 for Contents page
+            for page_num in range(min(14, len(doc))):
+                page = doc[page_num]
+                try:
+                    page_text = page.get_text()
+                except:
+                    try:
+                        page_text = page.get_text("text")
+                    except:
+                        continue
+                        
+                # Look for "Contents" or "Table of Contents" 
+                if any(word in page_text.lower() for word in ['contents', 'index']):
+                    print(f"Found Contents page at page {page_num + 1}")
+                    lines = page_text.split('\n')
+                    
+                    for line in lines:
+                        line = line.strip()
+                        if len(line) < 5:
+                            continue
+                            
+                        for pattern in contents_patterns:
+                            match = re.search(pattern, line, re.IGNORECASE)
+                            if match:
+                                if len(match.groups()) == 3:
+                                    chapter_num = match.group(1)
+                                    title = match.group(2).strip()
+                                    page_num_str = match.group(3)
+                                    
+                                    if chapter_num.isdigit() and page_num_str.isdigit():
+                                        contents_chapters.append({
+                                            'number': int(chapter_num),
+                                            'title': title,
+                                            'start_page': int(page_num_str)
+                                        })
+                                        print(f"Found Chapter {chapter_num}: {title} (Page {page_num_str})")
+                                        break
+        except Exception as e:
+            print(f"Error extracting contents: {str(e)}")
+            
+        return contents_chapters
+    
     def extract_content_with_chapters(self, pdf_path):
         """
         Extract content from PDF with chapter detection and metadata
@@ -32,6 +84,10 @@ class PDFProcessor:
                 
             doc = fitz.open(pdf_path)
             total_pages = len(doc)
+            
+            # First, extract Contents page to get chapter structure
+            contents_chapters = self._extract_contents_page(doc)
+            print(f"Found {len(contents_chapters)} chapters in Contents page")
             
             # Skip first 14 pages (intro/contents)
             start_page = 15 if total_pages > 14 else 1
@@ -89,16 +145,51 @@ class PDFProcessor:
             if current_chapter:
                 chapters.append(current_chapter)
             
+            # Use Contents page chapters if available and more comprehensive
+            if contents_chapters and len(contents_chapters) > len(chapters):
+                print(f"Using Contents page chapters ({len(contents_chapters)}) instead of detected chapters ({len(chapters)})")
+                final_chapters = contents_chapters
+                
+                # Add content to each chapter from the main text
+                for chapter in final_chapters:
+                    chapter_content = ""
+                    # Extract content for this chapter based on page range
+                    start_page_idx = max(14, chapter['start_page'] - 1)  # Start from page 15 minimum
+                    
+                    # Find end page (next chapter's start page - 1)
+                    end_page_idx = total_pages
+                    for next_chapter in contents_chapters:
+                        if next_chapter['number'] > chapter['number']:
+                            end_page_idx = next_chapter['start_page'] - 1
+                            break
+                    
+                    # Extract content for this chapter
+                    for page_num in range(start_page_idx, min(end_page_idx, total_pages)):
+                        try:
+                            page = doc[page_num]
+                            try:
+                                page_text = page.get_text()
+                            except:
+                                page_text = page.get_text("text")
+                            chapter_content += page_text + "\n"
+                        except:
+                            continue
+                    
+                    chapter['content'] = chapter_content
+            else:
+                final_chapters = chapters
+            
             doc.close()
             
             return {
                 'content': full_text,
-                'chapters': chapters,
+                'chapters': final_chapters,
                 'metadata': {
                     'total_pages': total_pages,
                     'content_start_page': start_page,
                     'document_type': 'text',
-                    'extracted_with_ocr': False
+                    'extracted_with_ocr': False,
+                    'contents_chapters_found': len(contents_chapters)
                 }
             }
             
