@@ -463,7 +463,7 @@ def show_rapid_fire_quiz():
         # Student name input
         student_name = st.text_input("Enter Your Name", key="rf_student_name")
         
-        if st.button("🚀 Start Rapid Fire Quiz", type="primary") and student_name:
+        if st.button("🚀 Start Rapid Fire Quiz", type="primary", key="start_quiz_with_name") and student_name:
             from utils.rapid_fire_generator import RapidFireGenerator
             
             generator = RapidFireGenerator()
@@ -485,7 +485,7 @@ def show_rapid_fire_quiz():
                 else:
                     st.error("Failed to generate quiz questions. Please try again.")
         
-        elif not student_name and st.button("🚀 Start Rapid Fire Quiz", type="primary"):
+        elif not student_name and st.button("🚀 Start Rapid Fire Quiz", type="primary", key="start_quiz_no_name"):
             st.warning("Please enter your name to start the quiz.")
     
     # Quiz in progress
@@ -550,12 +550,12 @@ def show_rapid_fire_quiz():
         
         with col1:
             if st.session_state.rf_current_question > 0:
-                if st.button("⬅️ Previous"):
+                if st.button("⬅️ Previous", key="rf_prev_btn"):
                     st.session_state.rf_current_question -= 1
                     st.rerun()
         
         with col2:
-            if st.button("⏭️ Skip"):
+            if st.button("⏭️ Skip", key="rf_skip_btn"):
                 if st.session_state.rf_current_question < len(st.session_state.rf_questions) - 1:
                     st.session_state.rf_current_question += 1
                     st.rerun()
@@ -563,17 +563,22 @@ def show_rapid_fire_quiz():
         with col3:
             if answer:
                 if st.session_state.rf_current_question < len(st.session_state.rf_questions) - 1:
-                    if st.button("➡️ Next", type="primary"):
+                    if st.button("➡️ Next", type="primary", key="rf_next_btn"):
                         st.session_state.rf_user_answers[f'q_{st.session_state.rf_current_question}'] = selected_letter
                         st.session_state.rf_current_question += 1
                         st.rerun()
                 else:
-                    if st.button("✅ Submit Quiz", type="primary"):
+                    if st.button("✅ Submit Quiz", type="primary", key="rf_submit_btn"):
                         st.session_state.rf_user_answers[f'q_{st.session_state.rf_current_question}'] = selected_letter
                         st.session_state.rf_test_completed = True
                         st.rerun()
         
-        # Auto-refresh for timer
+        # Auto-refresh for timer (using placeholder for smooth updates)
+        if 'rf_timer_placeholder' not in st.session_state:
+            st.session_state.rf_timer_placeholder = st.empty()
+        
+        # Update timer every second
+        st.session_state.rf_timer_placeholder.empty()
         time.sleep(1)
         st.rerun()
     
@@ -628,7 +633,7 @@ def show_rapid_fire_quiz():
             st.success("📊 Results saved to your report history!")
         
         # Reset button
-        if st.button("🔄 Take Another Quiz"):
+        if st.button("🔄 Take Another Quiz", key="rf_reset_btn"):
             # Reset all session state
             for key in list(st.session_state.keys()):
                 if key.startswith('rf_'):
