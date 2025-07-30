@@ -479,8 +479,8 @@ def show_rapid_fire_quiz():
                     st.session_state.rf_test_completed = False
                     st.session_state.rf_start_time = time.time()
                     st.session_state.rf_timer_duration = generator.get_timer_duration(num_questions)
-                    st.session_state.rf_subject = subject
-                    st.session_state.rf_student_name = student_name
+                    st.session_state.rf_quiz_subject = subject
+                    st.session_state.rf_quiz_student_name = student_name
                     st.rerun()
                 else:
                     st.error("Failed to generate quiz questions. Please try again.")
@@ -617,15 +617,15 @@ def show_rapid_fire_quiz():
         # Save result
         result_data = {
             **score_data,
-            'subject': st.session_state.rf_subject,
-            'student_name': st.session_state.rf_student_name,
+            'subject': st.session_state.rf_quiz_subject,
+            'student_name': st.session_state.rf_quiz_student_name,
             'questions': st.session_state.rf_questions,
             'user_answers': st.session_state.rf_user_answers
         }
         
         filepath = generator.save_rapid_fire_result(
-            st.session_state.rf_student_name,
-            st.session_state.rf_subject,
+            st.session_state.rf_quiz_student_name,
+            st.session_state.rf_quiz_subject,
             result_data
         )
         
