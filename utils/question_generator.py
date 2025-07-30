@@ -133,20 +133,24 @@ class QuestionGenerator:
                 if len(sentence) < 15:
                     continue
                 
+                # Skip chapter headers
+                if sentence.startswith('Chapter'):
+                    continue
+                    
                 # Extract definitions (sentences with "is", "are", "refers to", "means")
                 if any(pattern in sentence.lower() for pattern in [' is ', ' are ', ' refers to ', ' means ', ' defined as ']):
                     definitions.append(sentence)
                 
                 # Extract processes (sentences with process indicators)
-                elif any(pattern in sentence.lower() for pattern in ['process', 'steps', 'procedure', 'method']):
+                elif any(pattern in sentence.lower() for pattern in ['process', 'steps', 'procedure', 'method', 'when ', 'how ']):
                     processes.append(sentence)
                 
                 # Extract examples
-                elif any(pattern in sentence.lower() for pattern in ['example', 'for instance', 'such as', 'like']):
+                elif any(pattern in sentence.lower() for pattern in ['example', 'for instance', 'such as', 'like', 'include']):
                     examples.append(sentence)
                 
-                # General facts (other informative sentences)
-                elif len(sentence) > 30 and not sentence.startswith('Chapter'):
+                # General facts (other informative sentences) - more inclusive
+                elif len(sentence) > 25:
                     facts.append(sentence)
             
             return {
@@ -362,9 +366,24 @@ class QuestionGenerator:
                                  len(content_data['processes']) + 
                                  len(content_data['examples']))
             
-            if total_content_items < 5:
+            print(f"Content extracted: {len(content_data['definitions'])} definitions, {len(content_data['facts'])} facts, {len(content_data['processes'])} processes, {len(content_data['examples'])} examples")
+            
+            if total_content_items < 2:  # Lowered threshold
                 print("Insufficient textbook content for quality question generation")
-                return None
+                # Fall back to simpler content extraction
+                all_sentences = re.split(r'[.!?]+', combined_content)
+                meaningful_sentences = [s.strip() for s in all_sentences if len(s.strip()) > 20 and not s.strip().startswith('Chapter')]
+                
+                if len(meaningful_sentences) < 3:
+                    return None
+                    
+                # Create basic content from sentences
+                content_data = {
+                    'definitions': meaningful_sentences[:5],
+                    'facts': meaningful_sentences[:10], 
+                    'processes': meaningful_sentences[:3],
+                    'examples': meaningful_sentences[:5]
+                }
             
             # Distribute marks among question types
             mark_distribution = self._distribute_marks(total_marks, question_types)

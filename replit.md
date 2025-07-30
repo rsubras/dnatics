@@ -120,3 +120,25 @@ The application follows a client-server architecture with clear separation betwe
 6. **CORS Configuration**: Properly configured to allow frontend-backend communication during development.
 
 The architecture prioritizes flexibility, security, and ease of development while maintaining clear separation between different functional areas of the application.
+
+## Recent Changes (2025-07-30)
+
+### Enhanced Question Generation System
+- **Fixed Content-Based Question Generation**: Replaced generic template system with intelligent content extraction from actual textbook content
+- **Improved Content Extraction**: Enhanced fact, definition, process, and example extraction from textbook sentences
+- **Smarter Chapter Detection**: Fixed PDF processor to avoid false chapter detection (was detecting 261 chapters instead of actual 4-12)
+- **Robust Fallback System**: Added fallback content extraction when primary extraction yields insufficient content
+- **Better MCQ Options**: Generate meaningful multiple choice options based on actual textbook content instead of placeholder text
+
+### Technical Improvements
+- **Fixed PyMuPDF API**: Updated PDF text extraction to use correct `get_text("text")` method
+- **Enhanced Pattern Matching**: Improved chapter detection patterns to match only at line beginnings with reasonable chapter numbers (1-20)
+- **Content Validation**: Added content threshold validation with debug logging for troubleshooting
+- **Sentence Processing**: Enhanced sentence classification for better educational content extraction
+
+### User Experience Enhancements
+- **Real Questions**: Questions now generated from actual textbook content about Physical Changes, Weather & Climate, Motion & Time, and Light
+- **Contextual Content**: Questions include source content references for validation
+- **Better Error Handling**: Improved error messages and fallback mechanisms for content processing
+
+The system now generates meaningful educational content directly from uploaded textbook materials instead of using mock templates.

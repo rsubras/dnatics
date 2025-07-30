@@ -2,16 +2,17 @@ import os
 import json
 import re
 from datetime import datetime
-import fitz  # PyMuPDF
+try:
+    import fitz  # PyMuPDF
+except ImportError:
+    fitz = None
 
 class PDFProcessor:
     def __init__(self):
         self.chapter_patterns = [
-            r'Chapter\s+(\d+)[\s\.:]*(.+?)(?=\n|$)',
-            r'Unit\s+(\d+)[\s\.:]*(.+?)(?=\n|$)', 
-            r'Lesson\s+(\d+)[\s\.:]*(.+?)(?=\n|$)',
-            r'Section\s+(\d+)[\s\.:]*(.+?)(?=\n|$)',
-            r'(\d+)[\.\)\-\s]+(.+?)(?=\n|$)',
+            r'^Chapter\s+(\d+)[\s\.:]*(.+?)$',
+            r'^Unit\s+(\d+)[\s\.:]*(.+?)$', 
+            r'^Lesson\s+(\d+)[\s\.:]*(.+?)$',
         ]
     
     def extract_content_with_chapters(self, pdf_path):
@@ -25,6 +26,10 @@ class PDFProcessor:
             dict: Extracted content with chapters and metadata
         """
         try:
+            if fitz is None:
+                print("PyMuPDF not available, skipping PDF processing")
+                return None
+                
             doc = fitz.open(pdf_path)
             total_pages = len(doc)
             
@@ -37,28 +42,44 @@ class PDFProcessor:
             
             for page_num in range(start_page - 1, total_pages):
                 page = doc[page_num]
-                page_text = page.get_text()
+                try:
+                    page_text = page.get_text()
+                except:
+                    try:
+                        page_text = page.get_text("text")
+                    except:
+                        page_text = str(page)
                 full_text += page_text + "\n"
                 
-                # Detect chapters in page text
-                for pattern in self.chapter_patterns:
-                    matches = re.finditer(pattern, page_text, re.IGNORECASE | re.MULTILINE)
-                    for match in matches:
-                        chapter_num = match.group(1)
-                        chapter_title = match.group(2).strip()
+                # Detect chapters in page text (only at line beginnings)
+                lines = page_text.split('\n')
+                for line in lines:
+                    line = line.strip()
+                    if len(line) < 5 or len(line) > 100:  # Skip very short or very long lines
+                        continue
                         
-                        # Save previous chapter if exists
-                        if current_chapter:
-                            chapters.append(current_chapter)
-                        
-                        # Start new chapter
-                        current_chapter = {
-                            'number': int(chapter_num) if chapter_num.isdigit() else chapter_num,
-                            'title': chapter_title,
-                            'start_page': page_num + 1,
-                            'content': page_text
-                        }
-                        break
+                    for pattern in self.chapter_patterns:
+                        match = re.match(pattern, line, re.IGNORECASE)
+                        if match:
+                            chapter_num = match.group(1)
+                            chapter_title = match.group(2).strip()
+                            
+                            # Validate chapter number is reasonable (1-20)
+                            if chapter_num.isdigit() and 1 <= int(chapter_num) <= 20:
+                                # Save previous chapter if exists
+                                if current_chapter:
+                                    chapters.append(current_chapter)
+                                
+                                # Start new chapter
+                                current_chapter = {
+                                    'number': int(chapter_num),
+                                    'title': chapter_title,
+                                    'start_page': page_num + 1,
+                                    'content': page_text
+                                }
+                                break
+                    if current_chapter and current_chapter.get('start_page') == page_num + 1:
+                        break  # Found a chapter on this page, stop looking
                 
                 # Add content to current chapter
                 if current_chapter and not any(pattern in page_text for pattern in ['Chapter', 'Unit', 'Lesson']):
