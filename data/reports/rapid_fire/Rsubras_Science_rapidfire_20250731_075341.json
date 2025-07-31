@@ -1,0 +1,458 @@
+{
+  "total_questions": 25,
+  "correct_answers": 18,
+  "wrong_answers": 7,
+  "percentage": 72.0,
+  "grade": "B+",
+  "wrong_answers_details": [
+    {
+      "question_number": 4,
+      "question": "Which gas is produced when metals react with acids?",
+      "user_answer": "d",
+      "correct_answer": "",
+      "type": "MCQ"
+    },
+    {
+      "question_number": 5,
+      "question": "What gas do plants release during photosynthesis?",
+      "user_answer": "Carbon dioxide",
+      "correct_answer": "Oxygen",
+      "type": "MCQ"
+    },
+    {
+      "question_number": 11,
+      "question": "What is the most abundant gas in Earth's atmosphere?",
+      "user_answer": "b",
+      "correct_answer": "",
+      "type": "MCQ"
+    },
+    {
+      "question_number": 12,
+      "question": "Which gas is produced when metals react with acids?",
+      "user_answer": "b",
+      "correct_answer": "",
+      "type": "MCQ"
+    },
+    {
+      "question_number": 22,
+      "question": "What is the most abundant gas in Earth's atmosphere?",
+      "user_answer": "b",
+      "correct_answer": "",
+      "type": "MCQ"
+    },
+    {
+      "question_number": 23,
+      "question": "What is the unit of electric current?",
+      "user_answer": "b",
+      "correct_answer": "",
+      "type": "MCQ"
+    },
+    {
+      "question_number": 24,
+      "question": "What is the chemical symbol for gold?",
+      "user_answer": "c",
+      "correct_answer": "",
+      "type": "MCQ"
+    }
+  ],
+  "timestamp": "2025-07-31T07:53:41.236813",
+  "subject": "Science",
+  "student_name": "Rsubras",
+  "questions": [
+    {
+      "question": "Which organ in the human body produces insulin?",
+      "options": [
+        "a) Kidney",
+        "b) Heart",
+        "c) Pancreas",
+        "d) Liver"
+      ],
+      "correct_answer": "c",
+      "answer_value": "Pancreas",
+      "type": "MCQ",
+      "question_number": 1,
+      "subject": "Science",
+      "category": "biology_basics"
+    },
+    {
+      "question": "The Earth has how many moons?",
+      "options": [
+        "A) 0",
+        "B) 1",
+        "C) 2",
+        "D) 3"
+      ],
+      "correct_answer": "B",
+      "type": "MCQ",
+      "question_number": 2,
+      "subject": "Science",
+      "category": "general_science"
+    },
+    {
+      "question": "Water boils at what temperature?",
+      "options": [
+        "A) 200°C",
+        "B) 50°C",
+        "C) 100°C",
+        "D) 150°C"
+      ],
+      "correct_answer": "C",
+      "type": "MCQ",
+      "question_number": 3,
+      "subject": "Science",
+      "category": "general_science"
+    },
+    {
+      "question": "Which gas is produced when metals react with acids?",
+      "options": [
+        "a) Oxygen",
+        "b) Carbon dioxide",
+        "c) Hydrogen",
+        "d) Nitrogen"
+      ],
+      "correct_answer": "c",
+      "answer_value": "Hydrogen",
+      "type": "MCQ",
+      "question_number": 4,
+      "subject": "Science",
+      "category": "chemistry_basics"
+    },
+    {
+      "question": "What gas do plants release during photosynthesis?",
+      "options": [
+        "A) Carbon dioxide",
+        "B) Nitrogen",
+        "C) Oxygen",
+        "D) Hydrogen"
+      ],
+      "correct_answer": "C",
+      "type": "MCQ",
+      "question_number": 5,
+      "subject": "Science",
+      "category": "general_science"
+    },
+    {
+      "question": "What is the basic unit of life?",
+      "options": [
+        "a) Atom",
+        "b) Tissue",
+        "c) Organ",
+        "d) Cell"
+      ],
+      "correct_answer": "d",
+      "answer_value": "Cell",
+      "type": "MCQ",
+      "question_number": 6,
+      "subject": "Science",
+      "category": "biology_basics"
+    },
+    {
+      "question": "What do we call animals that eat only plants?",
+      "options": [
+        "a) Omnivores",
+        "b) Carnivores",
+        "c) Herbivores",
+        "d) Decomposers"
+      ],
+      "correct_answer": "c",
+      "answer_value": "Herbivores",
+      "type": "MCQ",
+      "question_number": 7,
+      "subject": "Science",
+      "category": "biology_basics"
+    },
+    {
+      "question": "Water boils at what temperature?",
+      "options": [
+        "A) 150°C",
+        "B) 50°C",
+        "C) 200°C",
+        "D) 100°C"
+      ],
+      "correct_answer": "D",
+      "type": "MCQ",
+      "question_number": 8,
+      "subject": "Science",
+      "category": "general_science"
+    },
+    {
+      "question": "What force pulls objects toward Earth?",
+      "options": [
+        "a) Gravity",
+        "b) Friction",
+        "c) Magnetism",
+        "d) Tension"
+      ],
+      "correct_answer": "a",
+      "answer_value": "Gravity",
+      "type": "MCQ",
+      "question_number": 9,
+      "subject": "Science",
+      "category": "physics_basics"
+    },
+    {
+      "question": "The Earth has how many moons?",
+      "options": [
+        "A) 3",
+        "B) 0",
+        "C) 1",
+        "D) 2"
+      ],
+      "correct_answer": "C",
+      "type": "MCQ",
+      "question_number": 10,
+      "subject": "Science",
+      "category": "general_science"
+    },
+    {
+      "question": "What is the most abundant gas in Earth's atmosphere?",
+      "options": [
+        "a) Argon",
+        "b) Oxygen",
+        "c) Carbon dioxide",
+        "d) Nitrogen"
+      ],
+      "correct_answer": "d",
+      "answer_value": "Nitrogen",
+      "type": "MCQ",
+      "question_number": 11,
+      "subject": "Science",
+      "category": "chemistry_basics"
+    },
+    {
+      "question": "Which gas is produced when metals react with acids?",
+      "options": [
+        "a) Hydrogen",
+        "b) Nitrogen",
+        "c) Oxygen",
+        "d) Carbon dioxide"
+      ],
+      "correct_answer": "a",
+      "answer_value": "Hydrogen",
+      "type": "MCQ",
+      "question_number": 12,
+      "subject": "Science",
+      "category": "chemistry_basics"
+    },
+    {
+      "question": "What is the hardest natural substance?",
+      "options": [
+        "A) Iron",
+        "B) Gold",
+        "C) Silver",
+        "D) Diamond"
+      ],
+      "correct_answer": "D",
+      "type": "MCQ",
+      "question_number": 13,
+      "subject": "Science",
+      "category": "general_science"
+    },
+    {
+      "question": "Which organ in the human body produces insulin?",
+      "options": [
+        "a) Heart",
+        "b) Pancreas",
+        "c) Liver",
+        "d) Kidney"
+      ],
+      "correct_answer": "b",
+      "answer_value": "Pancreas",
+      "type": "MCQ",
+      "question_number": 14,
+      "subject": "Science",
+      "category": "biology_basics"
+    },
+    {
+      "question": "What force pulls objects toward Earth?",
+      "options": [
+        "a) Friction",
+        "b) Gravity",
+        "c) Tension",
+        "d) Magnetism"
+      ],
+      "correct_answer": "b",
+      "answer_value": "Gravity",
+      "type": "MCQ",
+      "question_number": 15,
+      "subject": "Science",
+      "category": "physics_basics"
+    },
+    {
+      "question": "What gas do plants release during photosynthesis?",
+      "options": [
+        "A) Carbon dioxide",
+        "B) Hydrogen",
+        "C) Nitrogen",
+        "D) Oxygen"
+      ],
+      "correct_answer": "D",
+      "type": "MCQ",
+      "question_number": 16,
+      "subject": "Science",
+      "category": "general_science"
+    },
+    {
+      "question": "What is the pH of pure water?",
+      "options": [
+        "a) 0",
+        "b) 8",
+        "c) 7",
+        "d) 6"
+      ],
+      "correct_answer": "c",
+      "answer_value": "7",
+      "type": "MCQ",
+      "question_number": 17,
+      "subject": "Science",
+      "category": "chemistry_basics"
+    },
+    {
+      "question": "What force pulls objects toward Earth?",
+      "options": [
+        "a) Friction",
+        "b) Tension",
+        "c) Gravity",
+        "d) Magnetism"
+      ],
+      "correct_answer": "c",
+      "answer_value": "Gravity",
+      "type": "MCQ",
+      "question_number": 18,
+      "subject": "Science",
+      "category": "physics_basics"
+    },
+    {
+      "question": "The Earth has how many moons?",
+      "options": [
+        "A) 2",
+        "B) 3",
+        "C) 1",
+        "D) 0"
+      ],
+      "correct_answer": "C",
+      "type": "MCQ",
+      "question_number": 19,
+      "subject": "Science",
+      "category": "general_science"
+    },
+    {
+      "question": "What force pulls objects toward Earth?",
+      "options": [
+        "a) Magnetism",
+        "b) Friction",
+        "c) Gravity",
+        "d) Tension"
+      ],
+      "correct_answer": "c",
+      "answer_value": "Gravity",
+      "type": "MCQ",
+      "question_number": 20,
+      "subject": "Science",
+      "category": "physics_basics"
+    },
+    {
+      "question": "What is the hardest natural substance?",
+      "options": [
+        "A) Silver",
+        "B) Diamond",
+        "C) Gold",
+        "D) Iron"
+      ],
+      "correct_answer": "B",
+      "type": "MCQ",
+      "question_number": 21,
+      "subject": "Science",
+      "category": "general_science"
+    },
+    {
+      "question": "What is the most abundant gas in Earth's atmosphere?",
+      "options": [
+        "a) Carbon dioxide",
+        "b) Oxygen",
+        "c) Argon",
+        "d) Nitrogen"
+      ],
+      "correct_answer": "d",
+      "answer_value": "Nitrogen",
+      "type": "MCQ",
+      "question_number": 22,
+      "subject": "Science",
+      "category": "chemistry_basics"
+    },
+    {
+      "question": "What is the unit of electric current?",
+      "options": [
+        "a) Volt",
+        "b) Watt",
+        "c) Ampere",
+        "d) Ohm"
+      ],
+      "correct_answer": "c",
+      "answer_value": "Ampere",
+      "type": "MCQ",
+      "question_number": 23,
+      "subject": "Science",
+      "category": "physics_basics"
+    },
+    {
+      "question": "What is the chemical symbol for gold?",
+      "options": [
+        "a) Gd",
+        "b) Go",
+        "c) Ag",
+        "d) Au"
+      ],
+      "correct_answer": "d",
+      "answer_value": "Au",
+      "type": "MCQ",
+      "question_number": 24,
+      "subject": "Science",
+      "category": "chemistry_basics"
+    },
+    {
+      "question": "What do we call animals that eat only plants?",
+      "options": [
+        "a) Decomposers",
+        "b) Carnivores",
+        "c) Herbivores",
+        "d) Omnivores"
+      ],
+      "correct_answer": "c",
+      "answer_value": "Herbivores",
+      "type": "MCQ",
+      "question_number": 25,
+      "subject": "Science",
+      "category": "biology_basics"
+    }
+  ],
+  "user_answers": {
+    "q_0": "c",
+    "q_1": "B",
+    "q_2": "C",
+    "q_3": "d",
+    "q_4": "A",
+    "q_5": "d",
+    "q_6": "c",
+    "q_7": "D",
+    "q_8": "a",
+    "q_9": "C",
+    "q_10": "b",
+    "q_11": "b",
+    "q_12": "D",
+    "q_13": "b",
+    "q_14": "b",
+    "q_15": "D",
+    "q_16": "c",
+    "q_17": "c",
+    "q_18": "C",
+    "q_19": "c",
+    "q_20": "B",
+    "q_21": "b",
+    "q_22": "b",
+    "q_23": "c",
+    "q_24": "c"
+  },
+  "test_type": "Rapid Fire",
+  "date": "2025-07-31T07:53:41.241529"
+}

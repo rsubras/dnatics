@@ -143,7 +143,7 @@ The architecture prioritizes flexibility, security, and ease of development whil
 
 The system now generates meaningful educational content directly from uploaded textbook materials instead of using mock templates.
 
-### Rapid Fire Quiz System (2025-07-30)
+### Rapid Fire Quiz System (2025-07-30 & 2025-07-31)
 - **Timed Quiz Functionality**: Added comprehensive rapid fire quiz system with automatic timer management
 - **Multi-Subject Support**: Mathematics (multiplication tables, fractions, arithmetic), English (grammar, vocabulary), Science (basic concepts)
 - **Flexible Question Counts**: 25 questions (5 min), 50 questions (10 min), 75 questions (15 min), 100 questions (20 min)
@@ -151,3 +151,13 @@ The system now generates meaningful educational content directly from uploaded t
 - **Automatic Grading**: Instant scoring with percentage calculation and letter grades (A+ to F)
 - **Result History**: Comprehensive reporting system with saved quiz results in student dashboard
 - **Auto-Submit**: Timer automatically submits quiz when time expires to ensure fair assessment
+
+### Enhanced Rapid Fire Features (2025-07-31)
+- **Progressive Timer Blinking**: Timer blinks with increasing urgency (25% → 15% → 10% → 5% → 1% remaining time)
+- **Email-Based Authentication**: Replaced manual name entry with email login and automatic name extraction
+- **Age-Appropriate Access Control**: Minor accounts restricted from teacher access based on email patterns
+- **Performance-Based Visual Feedback**: Reward icons for high scores (90%+: trophy/stars, 70%+: medals), red gradient display for poor scores
+- **Detailed Wrong Answer Review**: Shows correct answers for all incorrect responses with question-by-question breakdown
+- **Subject-Wise Results Grouping**: Comprehensive performance tracking with statistics, trends, and categorized results
+- **No Question Repetition**: Fixed duplicate question issue by implementing unique question pools for all subjects
+- **Improved Answer Display**: Fixed null correct answer issue with proper fallback mechanisms

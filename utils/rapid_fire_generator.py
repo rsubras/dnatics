@@ -46,74 +46,131 @@ class RapidFireGenerator:
         return questions
     
     def _generate_math_questions(self, num_questions: int) -> List[Dict]:
-        """Generate mathematics questions"""
+        """Generate mathematics questions with no repeats"""
         questions = []
         operation_types = list(self.math_operations.keys())
         
-        for i in range(num_questions):
-            operation = random.choice(operation_types)
-            question_data = self.math_operations[operation]()
-            if question_data:  # Check if question was generated successfully
-                question_data['question_number'] = i + 1
-                question_data['subject'] = 'Mathematics'
-                question_data['category'] = operation
-                questions.append(question_data)
-            else:
-                # Fallback to basic arithmetic if specific operation fails
-                question_data = self._generate_basic_arithmetic()
-                if question_data:
-                    question_data['question_number'] = i + 1
-                    question_data['subject'] = 'Mathematics'
-                    question_data['category'] = 'basic_arithmetic'
-                    questions.append(question_data)
+        # Create a pool of unique questions
+        all_questions_pool = []
+        for operation in operation_types:
+            try:
+                # Generate multiple questions from each operation type
+                for _ in range(30):  # Generate 30 from each type
+                    question_data = self.math_operations[operation]()
+                    if question_data:
+                        question_data['subject'] = 'Mathematics'
+                        question_data['category'] = operation
+                        all_questions_pool.append(question_data)
+            except:
+                continue
+        
+        # Remove duplicates based on question text
+        unique_questions = []
+        seen_questions = set()
+        for q in all_questions_pool:
+            if q['question'] not in seen_questions:
+                unique_questions.append(q)
+                seen_questions.add(q['question'])
+        
+        # Randomly sample from unique questions
+        if len(unique_questions) >= num_questions:
+            selected_questions = random.sample(unique_questions, num_questions)
+        else:
+            # If not enough unique questions, add some duplicates
+            selected_questions = unique_questions.copy()
+            while len(selected_questions) < num_questions:
+                selected_questions.append(random.choice(unique_questions))
+        
+        # Add question numbers
+        for i, question_data in enumerate(selected_questions):
+            question_data['question_number'] = i + 1
+            questions.append(question_data)
         
         return questions
     
     def _generate_english_questions(self, num_questions: int) -> List[Dict]:
-        """Generate English grammar questions"""
+        """Generate English grammar questions with no repeats"""
         questions = []
         grammar_types = list(self.english_grammar.keys())
         
-        for i in range(num_questions):
-            grammar_type = random.choice(grammar_types)
-            question_data = self.english_grammar[grammar_type]()
-            if question_data:  # Check if question was generated successfully
-                question_data['question_number'] = i + 1
-                question_data['subject'] = 'English'
-                question_data['category'] = grammar_type
-                questions.append(question_data)
-            else:
-                # Fallback to parts of speech if specific type fails
-                question_data = self._generate_parts_of_speech()
-                if question_data:
-                    question_data['question_number'] = i + 1
-                    question_data['subject'] = 'English'
-                    question_data['category'] = 'parts_of_speech'
-                    questions.append(question_data)
+        # Create a pool of unique questions
+        all_questions_pool = []
+        for grammar_type in grammar_types:
+            try:
+                # Generate multiple questions from each grammar type
+                for _ in range(25):  # Generate 25 from each type
+                    question_data = self.english_grammar[grammar_type]()
+                    if question_data:
+                        question_data['subject'] = 'English'
+                        question_data['category'] = grammar_type
+                        all_questions_pool.append(question_data)
+            except:
+                continue
+        
+        # Remove duplicates based on question text
+        unique_questions = []
+        seen_questions = set()
+        for q in all_questions_pool:
+            if q['question'] not in seen_questions:
+                unique_questions.append(q)
+                seen_questions.add(q['question'])
+        
+        # Randomly sample from unique questions
+        if len(unique_questions) >= num_questions:
+            selected_questions = random.sample(unique_questions, num_questions)
+        else:
+            # If not enough unique questions, add some duplicates
+            selected_questions = unique_questions.copy()
+            while len(selected_questions) < num_questions:
+                selected_questions.append(random.choice(unique_questions))
+        
+        # Add question numbers
+        for i, question_data in enumerate(selected_questions):
+            question_data['question_number'] = i + 1
+            questions.append(question_data)
         
         return questions
     
     def _generate_science_questions(self, num_questions: int) -> List[Dict]:
-        """Generate basic science questions"""
+        """Generate basic science questions with no repeats"""
         questions = []
         science_types = list(self.science_basics.keys())
         
-        for i in range(num_questions):
-            science_type = random.choice(science_types)
-            question_data = self.science_basics[science_type]()
-            if question_data:  # Check if question was generated successfully
-                question_data['question_number'] = i + 1
-                question_data['subject'] = 'Science'
-                question_data['category'] = science_type
-                questions.append(question_data)
-            else:
-                # Fallback to general science if specific type fails
-                question_data = self._generate_general_science()
-                if question_data:
-                    question_data['question_number'] = i + 1
-                    question_data['subject'] = 'Science'
-                    question_data['category'] = 'general_science'
-                    questions.append(question_data)
+        # Create a pool of all possible questions
+        all_questions_pool = []
+        for science_type in science_types:
+            try:
+                # Generate multiple questions from each type
+                for _ in range(20):  # Generate 20 from each type
+                    question_data = self.science_basics[science_type]()
+                    if question_data:
+                        question_data['subject'] = 'Science'
+                        question_data['category'] = science_type
+                        all_questions_pool.append(question_data)
+            except:
+                continue
+        
+        # Remove duplicates based on question text
+        unique_questions = []
+        seen_questions = set()
+        for q in all_questions_pool:
+            if q['question'] not in seen_questions:
+                unique_questions.append(q)
+                seen_questions.add(q['question'])
+        
+        # Randomly sample from unique questions
+        if len(unique_questions) >= num_questions:
+            selected_questions = random.sample(unique_questions, num_questions)
+        else:
+            # If not enough unique questions, add some duplicates
+            selected_questions = unique_questions.copy()
+            while len(selected_questions) < num_questions:
+                selected_questions.append(random.choice(unique_questions))
+        
+        # Add question numbers
+        for i, question_data in enumerate(selected_questions):
+            question_data['question_number'] = i + 1
+            questions.append(question_data)
         
         return questions
     
@@ -446,12 +503,16 @@ class RapidFireGenerator:
                     correct_count += 1
                 else:
                     # Find the correct option text
-                    correct_option_text = ""
+                    correct_option_text = question.get('answer_value', 'Unknown')
                     if 'options' in question:
                         for option in question['options']:
                             if option.startswith(question['correct_answer'].upper() + ')'):
-                                correct_option_text = option.split(') ', 1)[1]
+                                correct_option_text = option.split(') ', 1)[1] if ') ' in option else option
                                 break
+                    
+                    # Fallback if still empty
+                    if not correct_option_text:
+                        correct_option_text = question.get('answer_value', 'Answer not found')
                     
                     # Find user's selected option text
                     user_option_text = ""
