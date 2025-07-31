@@ -431,20 +431,56 @@ class RapidFireGenerator:
         return timer_mapping.get(num_questions, 5 * 60)  # Default 5 minutes
     
     def calculate_score(self, user_answers: Dict, correct_answers: List[Dict]) -> Dict:
-        """Calculate the score for rapid fire test"""
+        """Calculate the score for rapid fire test with detailed feedback"""
         total_questions = len(correct_answers)
         correct_count = 0
+        wrong_answers_details = []
         
         for i, question in enumerate(correct_answers):
             user_answer = user_answers.get(f'q_{i}', '').strip().lower()
-            correct_answer = str(question['answer_value']).strip().lower()
             
             if question['type'] == 'MCQ':
-                if user_answer == question['correct_answer'].lower():
+                correct_answer = question['correct_answer'].lower()
+                is_correct = user_answer == correct_answer
+                if is_correct:
                     correct_count += 1
+                else:
+                    # Find the correct option text
+                    correct_option_text = ""
+                    if 'options' in question:
+                        for option in question['options']:
+                            if option.startswith(question['correct_answer'].upper() + ')'):
+                                correct_option_text = option.split(') ', 1)[1]
+                                break
+                    
+                    # Find user's selected option text
+                    user_option_text = ""
+                    if user_answer and 'options' in question:
+                        for option in question['options']:
+                            if option.startswith(user_answer.upper() + ')'):
+                                user_option_text = option.split(') ', 1)[1]
+                                break
+                    
+                    wrong_answers_details.append({
+                        'question_number': i + 1,
+                        'question': question['question'],
+                        'user_answer': user_option_text or user_answer,
+                        'correct_answer': correct_option_text,
+                        'type': 'MCQ'
+                    })
             else:  # Short Answer
-                if user_answer == correct_answer:
+                correct_answer = str(question['answer_value']).strip().lower()
+                is_correct = user_answer == correct_answer
+                if is_correct:
                     correct_count += 1
+                else:
+                    wrong_answers_details.append({
+                        'question_number': i + 1,
+                        'question': question['question'],
+                        'user_answer': user_answer,
+                        'correct_answer': str(question['answer_value']),
+                        'type': 'Short Answer'
+                    })
         
         percentage = (correct_count / total_questions) * 100
         
@@ -468,6 +504,7 @@ class RapidFireGenerator:
             'wrong_answers': total_questions - correct_count,
             'percentage': round(percentage, 2),
             'grade': grade,
+            'wrong_answers_details': wrong_answers_details,
             'timestamp': datetime.now().isoformat()
         }
     

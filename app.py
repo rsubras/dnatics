@@ -42,37 +42,121 @@ def main():
         initial_sidebar_state="expanded"
     )
     
+    # Enhanced CSS for all features
+    st.markdown("""
+    <style>
+    .timer-blink-slow { animation: blink-slow 2s infinite; }
+    .timer-blink-medium { animation: blink-medium 1s infinite; }
+    .timer-blink-fast { animation: blink-fast 0.5s infinite; }
+    .timer-blink-urgent { animation: blink-urgent 0.2s infinite; }
+    
+    @keyframes blink-slow { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.3; } }
+    @keyframes blink-medium { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.2; } }
+    @keyframes blink-fast { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.1; } }
+    @keyframes blink-urgent { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.05; } }
+    
+    .score-excellent { color: #00C851; font-size: 2rem; text-align: center; }
+    .score-good { color: #ffbb33; font-size: 1.8rem; text-align: center; }
+    .score-average { color: #ff4444; font-size: 1.6rem; text-align: center; }
+    .score-poor { color: #ff0000; font-size: 1.4rem; font-weight: bold; text-align: center; }
+    
+    .wrong-answer { background-color: #ffebee; border-left: 4px solid #f44336; padding: 10px; margin: 10px 0; }
+    .correct-answer { background-color: #e8f5e8; border-left: 4px solid #4caf50; padding: 10px; margin: 10px 0; }
+    </style>
+    """, unsafe_allow_html=True)
+    
     # Main title
     st.title("📚 SmartEduQuest - Educational Portal")
     st.markdown("### Question Generation and Answer Evaluation System")
     
-    # Role selection
+    # Initialize authentication session state
+    if 'authenticated' not in st.session_state:
+        st.session_state.authenticated = False
+    if 'user_email' not in st.session_state:
+        st.session_state.user_email = None
+    if 'user_name' not in st.session_state:
+        st.session_state.user_name = None
+    
+    # Authentication flow
+    if not st.session_state.authenticated:
+        show_authentication()
+    else:
+        # Show user info and role selection/content
+        show_authenticated_interface()
+
+def show_authentication():
+    """Simple email-based authentication system"""
+    st.markdown("### 🔐 Login to SmartEduQuest Portal")
+    
+    with st.form("login_form"):
+        email = st.text_input("📧 Email Address", placeholder="Enter your email")
+        
+        col1, col2 = st.columns(2)
+        submitted = st.form_submit_button("🚀 Login", use_container_width=True)
+        
+        if submitted and email:
+            # Simple email validation
+            if "@" in email and "." in email:
+                # Determine if email suggests student or teacher
+                is_minor = any(domain in email.lower() for domain in ['@student.', '@school.', 'grade', 'class'])
+                
+                # Extract name from email (part before @)
+                name = email.split('@')[0].replace('.', ' ').replace('_', ' ').title()
+                
+                st.session_state.authenticated = True
+                st.session_state.user_email = email
+                st.session_state.user_name = name
+                
+                st.success(f"✅ Welcome {name}!")
+                st.rerun()
+            else:
+                st.error("❌ Please enter a valid email address")
+
+def show_authenticated_interface():
+    """Show interface after authentication"""
+    # Top panel with user info
+    col1, col2, col3 = st.columns([2, 2, 1])
+    
+    with col1:
+        st.markdown(f"**👋 Welcome, {st.session_state.user_name}**")
+    
+    with col2:
+        st.text(f"📧 {st.session_state.user_email}")
+    
+    with col3:
+        if st.button("Logout"):
+            # Reset all session state
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+    
+    st.markdown("---")
+    
+    # Role selection if not already chosen
     if st.session_state.user_role is None:
-        st.markdown("---")
+        st.markdown("### Select Your Role")
         col1, col2 = st.columns(2)
         
+        # Check for minor account restrictions for teacher login
+        is_minor_email = any(indicator in st.session_state.user_email.lower() 
+                            for indicator in ['@student.', '@school.', 'grade', 'class', 'kid', 'child'])
+        
         with col1:
-            if st.button("👨‍🏫 Teacher Login", use_container_width=True, type="primary"):
-                st.session_state.user_role = "teacher"
-                st.rerun()
-                
+            if is_minor_email:
+                st.button("👨‍🏫 Teacher Login", disabled=True, 
+                         help="Minor accounts cannot access teacher features")
+                st.caption("⚠️ Teacher access restricted for minor accounts")
+            else:
+                if st.button("👨‍🏫 Teacher Login", use_container_width=True, type="primary"):
+                    st.session_state.user_role = "teacher"
+                    st.rerun()
+                    
         with col2:
             if st.button("👨‍🎓 Student Login", use_container_width=True):
                 st.session_state.user_role = "student"
                 st.rerun()
     else:
-        # Display current role and logout option
-        col1, col2 = st.columns([3, 1])
-        with col1:
-            st.info(f"Logged in as: **{st.session_state.user_role.title()}**")
-        with col2:
-            if st.button("Logout"):
-                st.session_state.user_role = None
-                st.rerun()
-        
-        st.markdown("---")
-        
-        # Role-specific content
+        # Show role-specific content
         if st.session_state.user_role == "teacher":
             show_teacher_interface()
         elif st.session_state.user_role == "student":
@@ -460,10 +544,10 @@ def show_rapid_fire_quiz():
         
         st.markdown(f"**Topics covered:**\n{subject_info[subject]}")
         
-        # Student name input
-        student_name = st.text_input("Enter Your Name", key="rf_student_name")
+        # Use authenticated user's name
+        st.info(f"👨‍🎓 Quiz for: **{st.session_state.user_name}**")
         
-        if st.button("🚀 Start Rapid Fire Quiz", type="primary", key="start_quiz_with_name") and student_name:
+        if st.button("🚀 Start Rapid Fire Quiz", type="primary", key="start_quiz_with_name"):
             from utils.rapid_fire_generator import RapidFireGenerator
             
             generator = RapidFireGenerator()
@@ -480,13 +564,12 @@ def show_rapid_fire_quiz():
                     st.session_state.rf_start_time = time.time()
                     st.session_state.rf_timer_duration = generator.get_timer_duration(num_questions)
                     st.session_state.rf_quiz_subject = subject
-                    st.session_state.rf_quiz_student_name = student_name
+                    st.session_state.rf_quiz_student_name = st.session_state.user_name
                     st.rerun()
                 else:
                     st.error("Failed to generate quiz questions. Please try again.")
         
-        elif not student_name and st.button("🚀 Start Rapid Fire Quiz", type="primary", key="start_quiz_no_name"):
-            st.warning("Please enter your name to start the quiz.")
+        # Remove the old name validation since we use authenticated user name
     
     # Quiz in progress
     elif st.session_state.rf_test_started and not st.session_state.rf_test_completed:
@@ -499,19 +582,45 @@ def show_rapid_fire_quiz():
             st.session_state.rf_test_completed = True
             st.rerun()
         
-        # Timer display
+        # Timer display with blinking effects
         minutes = int(remaining_time // 60)
         seconds = int(remaining_time % 60)
         
-        # Create timer with color coding
-        if remaining_time < 60:  # Last minute - red
-            timer_color = "🔴"
-        elif remaining_time < 300:  # Last 5 minutes - yellow
-            timer_color = "🟡"
-        else:
-            timer_color = "🟢"
+        # Calculate time percentage remaining
+        time_percentage = (remaining_time / st.session_state.rf_timer_duration) * 100
         
-        st.markdown(f"### {timer_color} Time Remaining: {minutes:02d}:{seconds:02d}")
+        # Determine timer style and color based on remaining time
+        if time_percentage <= 1:  # Last 1% - urgent blinking
+            timer_class = "timer-blink-urgent"
+            timer_color = "🔴"
+            timer_style = "color: #ff0000; font-weight: bold; font-size: 2rem;"
+        elif time_percentage <= 5:  # Last 5% - fast blinking  
+            timer_class = "timer-blink-fast"
+            timer_color = "🔴"
+            timer_style = "color: #ff4444; font-weight: bold; font-size: 1.8rem;"
+        elif time_percentage <= 10:  # Last 10% - medium blinking
+            timer_class = "timer-blink-medium"
+            timer_color = "🟠"
+            timer_style = "color: #ff8800; font-weight: bold; font-size: 1.6rem;"
+        elif time_percentage <= 15:  # Last 15% - slow blinking
+            timer_class = "timer-blink-slow"
+            timer_color = "🟡"
+            timer_style = "color: #ffbb33; font-weight: bold; font-size: 1.4rem;"
+        elif time_percentage <= 25:  # Last 25% - start slow blinking
+            timer_class = "timer-blink-slow"
+            timer_color = "🟡"
+            timer_style = "color: #ffdd44; font-size: 1.2rem;"
+        else:
+            timer_class = ""
+            timer_color = "🟢"
+            timer_style = "color: #00C851;"
+        
+        # Display timer with appropriate styling
+        st.markdown(f"""
+        <div class="{timer_class}" style="{timer_style}">
+            {timer_color} Time Remaining: {minutes:02d}:{seconds:02d}
+        </div>
+        """, unsafe_allow_html=True)
         
         # Progress bar
         progress = st.session_state.rf_current_question / len(st.session_state.rf_questions)
@@ -607,12 +716,70 @@ def show_rapid_fire_quiz():
         with col3:
             st.metric("Percentage", f"{score_data['percentage']}%")
         
-        # Grade display with color
-        grade_colors = {
-            'A+': '🟢', 'A': '🟢', 'B+': '🟡', 'B': '🟡', 'C': '🟠', 'F': '🔴'
-        }
+        # Enhanced grade display with rewards and color coding
+        percentage = score_data['percentage']
+        grade = score_data['grade']
         
-        st.markdown(f"## {grade_colors.get(score_data['grade'], '⚪')} Grade: {score_data['grade']}")
+        # Determine reward icons and styling based on percentage
+        if percentage >= 90:
+            reward_icon = "🏆🌟✨"  # Trophy, star, sparkles for excellence
+            grade_class = "score-excellent"
+            celebration = "🎉 Outstanding Performance! 🎉"
+        elif percentage >= 80:
+            reward_icon = "🥇⭐"  # Gold medal, star for very good
+            grade_class = "score-good"
+            celebration = "🎊 Great Job! 🎊"
+        elif percentage >= 70:
+            reward_icon = "🥈👏"  # Silver medal, clap for good
+            grade_class = "score-good"
+            celebration = "👍 Well Done! 👍"
+        elif percentage >= 60:
+            reward_icon = "📈"  # Chart for improvement
+            grade_class = "score-average"
+            celebration = "Keep Improving!"
+        else:
+            # Varying shades of red for scores below 60%
+            if percentage >= 50:
+                grade_class = "score-poor"
+                red_shade = "#ff4444"
+            elif percentage >= 40:
+                grade_class = "score-poor"
+                red_shade = "#ff2222"
+            elif percentage >= 30:
+                grade_class = "score-poor"
+                red_shade = "#ff0000"
+            else:
+                grade_class = "score-poor"
+                red_shade = "#cc0000"
+            
+            reward_icon = "📚"  # Book for study more
+            celebration = "Study More!"
+            
+            # Override styling for poor scores
+            st.markdown(f"""
+            <div style="color: {red_shade}; font-size: 1.5rem; font-weight: bold; text-align: center;">
+                {reward_icon} Grade: {grade} - {celebration}
+            </div>
+            """, unsafe_allow_html=True)
+        
+        # Display celebration and grade for good scores
+        if percentage >= 60:
+            st.markdown(f"### {celebration}")
+            st.markdown(f'<div class="{grade_class}">{reward_icon} Grade: {grade}</div>', unsafe_allow_html=True)
+        
+        # Show wrong answers with correct answers
+        if score_data.get('wrong_answers_details'):
+            st.markdown("### 📝 Review Wrong Answers")
+            for wrong in score_data['wrong_answers_details']:
+                st.markdown(f"""
+                <div class="wrong-answer">
+                    <strong>Question {wrong['question_number']}:</strong> {wrong['question']}<br>
+                    <strong>❌ Your Answer:</strong> {wrong['user_answer'] or 'No answer provided'}<br>
+                </div>
+                <div class="correct-answer">
+                    <strong>✅ Correct Answer:</strong> {wrong['correct_answer']}
+                </div>
+                """, unsafe_allow_html=True)
         
         # Save result
         result_data = {
@@ -643,44 +810,123 @@ def show_rapid_fire_quiz():
 def show_results():
     st.subheader("📋 View Results")
     
-    # Regular question paper results
-    st.markdown("### 📄 Question Paper Results")
-    st.info("📊 **Evaluation Results**\n"
-           "Your answer sheet evaluations will appear here once processing is complete.")
+    # Create tabs for different result types
+    tab1, tab2 = st.tabs(["⚡ Rapid Fire Results", "📄 Question Paper Results"])
     
-    # Rapid Fire results
-    st.markdown("### ⚡ Rapid Fire Quiz History")
+    with tab1:
+        show_rapid_fire_results()
+    
+    with tab2:
+        st.markdown("### 📄 Question Paper Evaluation Results")
+        st.info("📊 **Answer Sheet Evaluations**\n"
+               "Your question paper answer sheet evaluations will appear here once processing is complete.")
+
+def show_rapid_fire_results():
+    """Enhanced rapid fire results with category grouping"""
+    st.markdown("### ⚡ Rapid Fire Quiz Performance")
     
     # Check for rapid fire results
     rf_reports_dir = "data/reports/rapid_fire"
-    if os.path.exists(rf_reports_dir):
-        rf_files = [f for f in os.listdir(rf_reports_dir) if f.endswith('.json')]
-        
-        if rf_files:
-            # Sort by timestamp (newest first)
-            rf_files.sort(reverse=True)
+    if not os.path.exists(rf_reports_dir):
+        st.info("No rapid fire quiz results found. Take a quiz to see your performance!")
+        return
+    
+    rf_files = [f for f in os.listdir(rf_reports_dir) if f.endswith('.json')]
+    
+    if not rf_files:
+        st.info("No rapid fire quiz results found. Take a quiz to see your performance!")
+        return
+    
+    # Load and categorize results
+    results_by_subject = {"Mathematics": [], "English": [], "Science": []}
+    all_results = []
+    
+    for rf_file in rf_files:
+        try:
+            with open(os.path.join(rf_reports_dir, rf_file), 'r') as f:
+                result = json.load(f)
             
-            for rf_file in rf_files[:10]:  # Show last 10 results
-                try:
-                    with open(os.path.join(rf_reports_dir, rf_file), 'r') as f:
-                        result = json.load(f)
+            # Add filename for reference
+            result['filename'] = rf_file
+            all_results.append(result)
+            
+            # Categorize by subject
+            subject = result.get('subject', 'Unknown')
+            if subject in results_by_subject:
+                results_by_subject[subject].append(result)
+                
+        except Exception as e:
+            continue
+    
+    # Sort all results by date (newest first)
+    all_results.sort(key=lambda x: x.get('timestamp', ''), reverse=True)
+    
+    # Display summary statistics
+    if all_results:
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Total Quizzes", len(all_results))
+        
+        with col2:
+            avg_score = sum(r.get('percentage', 0) for r in all_results) / len(all_results)
+            st.metric("Average Score", f"{avg_score:.1f}%")
+        
+        with col3:
+            best_score = max(r.get('percentage', 0) for r in all_results)
+            st.metric("Best Score", f"{best_score}%")
+        
+        with col4:
+            recent_score = all_results[0].get('percentage', 0)
+            st.metric("Latest Score", f"{recent_score}%")
+    
+    # Subject-wise performance tabs
+    if any(results_by_subject.values()):
+        st.markdown("### 📊 Performance by Subject")
+        
+        subject_tabs = st.tabs(["📐 Mathematics", "📝 English", "🔬 Science"])
+        
+        for i, (subject, subject_results) in enumerate(results_by_subject.items()):
+            with subject_tabs[i]:
+                if subject_results:
+                    # Subject statistics
+                    avg_subject_score = sum(r.get('percentage', 0) for r in subject_results) / len(subject_results)
+                    best_subject_score = max(r.get('percentage', 0) for r in subject_results)
                     
-                    # Parse filename for display
-                    parts = rf_file.replace('.json', '').split('_')
-                    if len(parts) >= 4:
-                        student = parts[0]
-                        subject = parts[1]
-                        timestamp = parts[3]
-                        
-                        # Format timestamp
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric(f"{subject} Quizzes", len(subject_results))
+                    with col2:
+                        st.metric("Average", f"{avg_subject_score:.1f}%")
+                    with col3:
+                        st.metric("Best", f"{best_subject_score}%")
+                    
+                    # Recent results for this subject
+                    st.markdown(f"#### Recent {subject} Results")
+                    subject_results.sort(key=lambda x: x.get('timestamp', ''), reverse=True)
+                    
+                    for result in subject_results[:5]:  # Show last 5 results
+                        # Parse timestamp
                         try:
-                            dt = datetime.strptime(timestamp, "%Y%m%d_%H%M%S")
-                            date_str = dt.strftime("%Y-%m-%d %H:%M")
+                            timestamp = result.get('date', result.get('timestamp', ''))
+                            if 'T' in timestamp:
+                                dt = datetime.fromisoformat(timestamp.replace('Z', ''))
+                                date_str = dt.strftime("%Y-%m-%d %H:%M")
+                            else:
+                                date_str = timestamp
                         except:
-                            date_str = timestamp
+                            date_str = "Unknown date"
                         
-                        # Display result card
-                        with st.expander(f"🎯 {subject} Quiz - {date_str} - Grade: {result.get('grade', 'N/A')}"):
+                        # Color code based on performance
+                        percentage = result.get('percentage', 0)
+                        if percentage >= 90:
+                            grade_color = "🟢"
+                        elif percentage >= 70:
+                            grade_color = "🟡"
+                        else:
+                            grade_color = "🔴"
+                        
+                        with st.expander(f"{grade_color} {date_str} - {result.get('grade', 'N/A')} ({percentage}%)"):
                             col1, col2, col3, col4 = st.columns(4)
                             
                             with col1:
@@ -688,16 +934,47 @@ def show_results():
                             with col2:
                                 st.metric("Correct", result.get('correct_answers', 0))
                             with col3:
-                                st.metric("Score", f"{result.get('percentage', 0)}%")
+                                st.metric("Wrong", result.get('wrong_answers', 0))
                             with col4:
                                 st.metric("Grade", result.get('grade', 'N/A'))
-                
-                except Exception as e:
-                    continue
+                            
+                            # Show wrong answers if available
+                            if result.get('wrong_answers_details'):
+                                st.markdown("**❌ Questions to Review:**")
+                                for wrong in result['wrong_answers_details'][:3]:  # Show first 3
+                                    st.markdown(f"• Q{wrong['question_number']}: {wrong['question']}")
+                                
+                                if len(result['wrong_answers_details']) > 3:
+                                    st.markdown(f"... and {len(result['wrong_answers_details']) - 3} more")
+                else:
+                    st.info(f"No {subject} quiz results yet. Take a {subject} quiz to see your performance!")
+    
+    # Recent activity section
+    st.markdown("### 📅 Recent Activity")
+    for result in all_results[:5]:  # Show last 5 overall results
+        try:
+            timestamp = result.get('date', result.get('timestamp', ''))
+            if 'T' in timestamp:
+                dt = datetime.fromisoformat(timestamp.replace('Z', ''))
+                date_str = dt.strftime("%Y-%m-%d %H:%M")
+            else:
+                date_str = timestamp
+        except:
+            date_str = "Unknown date"
+        
+        percentage = result.get('percentage', 0)
+        subject = result.get('subject', 'Unknown')
+        grade = result.get('grade', 'N/A')
+        
+        # Performance indicator
+        if percentage >= 80:
+            performance_icon = "🏆"
+        elif percentage >= 60:
+            performance_icon = "👍"
         else:
-            st.info("No rapid fire quiz results found. Take a quiz to see your history!")
-    else:
-        st.info("No rapid fire quiz results found. Take a quiz to see your history!")
+            performance_icon = "📚"
+        
+        st.markdown(f"{performance_icon} **{subject}** - {date_str} - Grade: **{grade}** ({percentage}%)")
 
 if __name__ == "__main__":
     main()
