@@ -1,0 +1,287 @@
+{
+  "total_questions": 25,
+  "correct_answers": 13,
+  "wrong_answers": 12,
+  "percentage": 52.0,
+  "grade": "C",
+  "timestamp": "2025-07-31T06:29:00.153554",
+  "subject": "Mathematics",
+  "student_name": "s.Arunitha",
+  "questions": [
+    {
+      "question": "What is 10 × 9?",
+      "options": [
+        "a) 87",
+        "b) 81",
+        "c) 90",
+        "d) 98"
+      ],
+      "correct_answer": "c",
+      "answer_value": 90,
+      "type": "MCQ",
+      "question_number": 1,
+      "subject": "Mathematics",
+      "category": "multiplication_tables"
+    },
+    {
+      "question": "Calculate: 41 + 29",
+      "correct_answer": "70",
+      "answer_value": 70,
+      "type": "Short Answer",
+      "question_number": 2,
+      "subject": "Mathematics",
+      "category": "basic_arithmetic"
+    },
+    {
+      "question": "Calculate: 2 × 4",
+      "correct_answer": "8",
+      "answer_value": 8,
+      "type": "Short Answer",
+      "question_number": 3,
+      "subject": "Mathematics",
+      "category": "basic_arithmetic"
+    },
+    {
+      "question": "Calculate: 44 - 32",
+      "correct_answer": "12",
+      "answer_value": 12,
+      "type": "Short Answer",
+      "question_number": 4,
+      "subject": "Mathematics",
+      "category": "basic_arithmetic"
+    },
+    {
+      "question": "Calculate: 44 - 29",
+      "correct_answer": "15",
+      "answer_value": 15,
+      "type": "Short Answer",
+      "question_number": 5,
+      "subject": "Mathematics",
+      "category": "basic_arithmetic"
+    },
+    {
+      "question": "What is 5 × 3?",
+      "options": [
+        "a) 22",
+        "b) 23",
+        "c) 15",
+        "d) 12"
+      ],
+      "correct_answer": "c",
+      "answer_value": 15,
+      "type": "MCQ",
+      "question_number": 6,
+      "subject": "Mathematics",
+      "category": "multiplication_tables"
+    },
+    {
+      "question": "Calculate: 21 - 15",
+      "correct_answer": "6",
+      "answer_value": 6,
+      "type": "Short Answer",
+      "question_number": 7,
+      "subject": "Mathematics",
+      "category": "basic_arithmetic"
+    },
+    {
+      "question": "What is 2/10 + 6/10?",
+      "correct_answer": "8/10",
+      "answer_value": "8/10",
+      "type": "Short Answer",
+      "question_number": 8,
+      "subject": "Mathematics",
+      "category": "fractions"
+    },
+    {
+      "question": "Calculate: 49 + 9",
+      "correct_answer": "58",
+      "answer_value": 58,
+      "type": "Short Answer",
+      "question_number": 9,
+      "subject": "Mathematics",
+      "category": "basic_arithmetic"
+    },
+    {
+      "question": "Calculate: 74 × 59",
+      "correct_answer": "4366",
+      "answer_value": 4366,
+      "type": "Short Answer",
+      "question_number": 10,
+      "subject": "Mathematics",
+      "category": "two_digit_multiplication"
+    },
+    {
+      "question": "Calculate: 63 × 81",
+      "correct_answer": "5103",
+      "answer_value": 5103,
+      "type": "Short Answer",
+      "question_number": 11,
+      "subject": "Mathematics",
+      "category": "two_digit_multiplication"
+    },
+    {
+      "question": "What is 8 × 4?",
+      "options": [
+        "a) 32",
+        "b) 26",
+        "c) 34",
+        "d) 24"
+      ],
+      "correct_answer": "a",
+      "answer_value": 32,
+      "type": "MCQ",
+      "question_number": 12,
+      "subject": "Mathematics",
+      "category": "multiplication_tables"
+    },
+    {
+      "question": "Calculate: 35 - 4",
+      "correct_answer": "31",
+      "answer_value": 31,
+      "type": "Short Answer",
+      "question_number": 13,
+      "subject": "Mathematics",
+      "category": "basic_arithmetic"
+    },
+    {
+      "question": "What is 5 × 9?",
+      "options": [
+        "a) 40",
+        "b) 45",
+        "c) 36",
+        "d) 44"
+      ],
+      "correct_answer": "b",
+      "answer_value": 45,
+      "type": "MCQ",
+      "question_number": 14,
+      "subject": "Mathematics",
+      "category": "multiplication_tables"
+    },
+    {
+      "question": "Calculate: 31 + 15",
+      "correct_answer": "46",
+      "answer_value": 46,
+      "type": "Short Answer",
+      "question_number": 15,
+      "subject": "Mathematics",
+      "category": "basic_arithmetic"
+    },
+    {
+      "question": "Calculate: 44 + 1",
+      "correct_answer": "45",
+      "answer_value": 45,
+      "type": "Short Answer",
+      "question_number": 16,
+      "subject": "Mathematics",
+      "category": "basic_arithmetic"
+    },
+    {
+      "question": "Calculate: 43 + 49",
+      "correct_answer": "92",
+      "answer_value": 92,
+      "type": "Short Answer",
+      "question_number": 17,
+      "subject": "Mathematics",
+      "category": "basic_arithmetic"
+    },
+    {
+      "question": "What is 2/6 + 2/6?",
+      "correct_answer": "4/6",
+      "answer_value": "4/6",
+      "type": "Short Answer",
+      "question_number": 18,
+      "subject": "Mathematics",
+      "category": "fractions"
+    },
+    {
+      "question": "Calculate: 47 × 78",
+      "correct_answer": "3666",
+      "answer_value": 3666,
+      "type": "Short Answer",
+      "question_number": 19,
+      "subject": "Mathematics",
+      "category": "two_digit_multiplication"
+    },
+    {
+      "question": "Calculate: 95 × 64",
+      "correct_answer": "6080",
+      "answer_value": 6080,
+      "type": "Short Answer",
+      "question_number": 20,
+      "subject": "Mathematics",
+      "category": "two_digit_multiplication"
+    },
+    {
+      "question": "What is 4 × 8?",
+      "options": [
+        "a) 32",
+        "b) 39",
+        "c) 37",
+        "d) 33"
+      ],
+      "correct_answer": "a",
+      "answer_value": 32,
+      "type": "MCQ",
+      "question_number": 21,
+      "subject": "Mathematics",
+      "category": "multiplication_tables"
+    },
+    {
+      "question": "Calculate: 7 × 2",
+      "correct_answer": "14",
+      "answer_value": 14,
+      "type": "Short Answer",
+      "question_number": 22,
+      "subject": "Mathematics",
+      "category": "basic_arithmetic"
+    },
+    {
+      "question": "Calculate: 48 + 50",
+      "correct_answer": "98",
+      "answer_value": 98,
+      "type": "Short Answer",
+      "question_number": 23,
+      "subject": "Mathematics",
+      "category": "basic_arithmetic"
+    },
+    {
+      "question": "What is 6/10 + 3/10?",
+      "correct_answer": "9/10",
+      "answer_value": "9/10",
+      "type": "Short Answer",
+      "question_number": 24,
+      "subject": "Mathematics",
+      "category": "fractions"
+    },
+    {
+      "question": "Calculate: 49 × 69",
+      "correct_answer": "3381",
+      "answer_value": 3381,
+      "type": "Short Answer",
+      "question_number": 25,
+      "subject": "Mathematics",
+      "category": "two_digit_multiplication"
+    }
+  ],
+  "user_answers": {
+    "q_0": "c",
+    "q_1": "80",
+    "q_2": "8",
+    "q_3": "12",
+    "q_4": "13",
+    "q_5": "c",
+    "q_6": "6",
+    "q_7": "8-10",
+    "q_8": "58",
+    "q_11": "a",
+    "q_12": "31",
+    "q_13": "b",
+    "q_14": "46",
+    "q_15": "45",
+    "q_16": "92",
+    "q_17": "4/6"
+  },
+  "test_type": "Rapid Fire",
+  "date": "2025-07-31T06:29:00.154845"
+}
